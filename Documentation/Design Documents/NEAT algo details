@@ -1,0 +1,134 @@
+Deconstruction of the NEAT algorithm from the paper "Evolving Neural Networks Through Augmenting Toplogies":
+
+Some free-form thoughts about how I want this application to run:
+
+The API will need to specify a few things:
+    1. The various parameters to control the algorithm (# individuals, speciation params, mutation rates, etc)
+    2. The inputs and outputs of the ANN. The initial structure of the ANN.
+    3. Performance measures/fitness function
+    4. Visualization control parameters
+    5. ANN saving parameters
+
+Features of the app:
+    1. Visualization for the structure of any genome
+    2. Visualization for the species in any given generation
+    3. Stats like # spawned, species extinction, # species, best fitness, etc.
+    4. Graphs of average fitness/species
+    5. ANN saving (based on threshold fitness? Best individual(s) after n-generations? Top from every species?)
+
+
+The algorithm as I currently understand it:
+    NEAT is a method for evolving ANNs without having to specify the network's topology from the outset. Instead,
+NEAT begins with a minimal structure for a network, having all input nodes connected to all output nodes (plus a
+bias node?), and allowing more complicated structure to arise over time. Evolutionary changes to the ANNs via
+new connections, new nodes, and connection weight changes give the ANNs new capabilities and explore the solution
+space from a faster, more minimal starting point. Initial detriments to ANN fitness from newly evolved structures
+are protected through the process of speciation and explicit fitness sharing, preventing over-achieving but
+unpromising networks from crowding out new and potentially advantageous innovations. Historical markings of genetic
+innovations in connection and node genes allow for crossing over between disparate individuals without topological
+analysis.
+
+
+OPEN QUESTIONS:
+    1. How to stream data to the inputs of the ANN?
+    2. How to propagate the signal through the ANN?
+        i. Specifically the transfer function details and
+        ii. How to handle recursive connections.
+            -Save the pulse from the previous network evaluation as an input for the next eval? This makes sense.
+    3. How do typical TWEANNs mutate connection wts?
+    4. Mutate before crossing over? Mutate after? Probably before...
+    5. What do you do if you have a species with only 1 member?
+        -Clone and lightly mutate, then mate?
+    6. What's the most efficient way to maintain lists of nodes eligible for connections during the mutation process?
+
+
+Algorithm Deconstruction:
+    1. Direct genetic encoding
+        a. List of connection genes. Each connection gene has:
+            i. In-node
+            ii. Out-node
+            iii. Connection wt.
+            iv. Enabled/disabled bit
+            v. Innovation number
+        b. List of node genes. Each node gene has:
+            i. List of inputs that can be connected. (From any node that's not an output? Recursive certainly OK)
+            ii. List of outputs that can be connected. (obvi)
+            iii. List of hidden nodes that can be connected (can't this be wrapped into (i)?
+            iv. Innovation number? How do we track identical node generation for mating?
+
+    2. Input -> output evaluation
+        i. Only compute the firing when all input(s) are primed?
+        ii. Transfer function executed at the node
+
+    3. Evolution
+        a. Changes to both structure and connection wts.
+            i. "Connection weights mutate as in any NE system, with each connection either perturbed or not at each generation".
+                ...This will require clarification.
+        b. Add Connection Mutation:
+            i. New connection gene connecting two previously unconnected nodes (can be recursive)
+            ii. Random wt. on creation.
+        c. Add Node Mutation:       a --(0.3)-> b    becomes  a --(1.0)-> c --(0.3)-> b
+            i. New node added to the Node list.
+            ii. An existing connection is disabled.
+            iii. New connection gene 1 connects old node a to new node c with wt of 1.0
+            iv. New connection gene 2 connects new node c to old node b with wt of old, disabled connection gene.
+        d. Historical Markers
+            i. New genes increment and are assigned a global innovation number
+            ii. List of structural mutations is maintained every generation, so the same innovation will receive
+                the same innovation number if it occurred in the same generation.
+
+    4. Speciation
+        a. Compatibility distance is the sorting measure for species
+            i. Calculated by:  cdist = c1(Excess / N) + c2(Disjoint / N) + c3 * AvgWtDiffMatching
+            ii. AvgWtDiffMatching is the average wt difference for all matching genes between the genomes, including disabled genes
+            iii. N is the number of genes in the larger genome. It is set to 1 if N < 20 genes.
+            iv. c1, c2, and c3 are all params to be set at the start of the first generation
+        b. Every individual is sequentially compared to representative genomes from the various species and placed
+            within that species if cdist is below the param threshold cdist_thresh.
+            i. Representative genomes for that species are chosen at random from the previous generation
+        c. Individuals that are not matched with any species found their own species. They become the representative
+            for that species.
+
+    5. Reproduction
+        a. Invdividuals have their own fitness, but share fitness across a species for mating purposes
+        b. Invdividual's adjusted fitness is F_individ / sizeof_species
+            i. So the adjusted fitness of every individual goes down as the species size grows
+        c. Every species is assigned a number of offspring proportional to the sum of the adjusted fitness for each
+            organism in that species.
+        d. The lowest performing members of a species are killed off
+        e. The remaining genomes are used to replenish the entire population
+
+    6. Mating
+        a. Genes are lined up by innovation number.
+        b. Shared innovation numbers between the individuals are called matching genes
+        c. Innovation numbers that do not line up are:
+            i. Excess, if the innovation number exceeds the range of the other parent
+            ii. Disjoint, if the innovation number isn't present in the other parent but is within the range
+        d. Matched genes are chosen randomly from either parent.
+        e. All excess and disjointed genes are chosen from the more fit parent
+        f. Most mating takes places w/in a species. There is a tiny amount of interspecies mating, however.
+
+    7. Settings and Params - Params are scaled for populations of 150 ANNs, except where noted for 1000 ANNs
+        a. Speciation:
+            i. c1 = 1.0
+            ii. c2 = 1.0
+            iii. c3 = 0.4 (3.0 for 1k population size. More room for species)
+            iv. cdist_thresh = 3.0 (4.0 for 1k population size to make roon for larger c3)
+            v. If a species' maximum fitness does not increase for 15 generations it goes extinct
+        b. Reproduction/Mutation:
+            i. Champion of any species w/ > 5 individuals was copied to the next generation unchanged. Still used for mating.
+            ii. 80% chance a genome has its connection wts. mutated. If so, for each connection weight:
+                -- 90% chance of being uniformly perturbed
+                -- 10% chance of being assigned a new, random value.
+                -- Again, look up how typical TWEANNs mutate connection weights
+            iii. 75% chance that a gene is disabled if it was disabled in either parent
+            iv. 25% of all offspring come from mutation only, without crossing over
+            v. "The interspecies mating rate was 0.001" - I assume this means 0.1% of all offspring are the result of
+                interspecies mating
+            vi. 3% chance of adding a new node
+            vii. 5% chance of adding a new link (30% for 1k population. Greater diversity here!)
+        c. Modified sigmoidal transfer function at all nodes:
+            i. t(x) = 1 / (1 + e^(-4.9x))
+            ii. Assume we sum the (Hadamard?) product of the firing strength and input wt. vectors for x
+
+

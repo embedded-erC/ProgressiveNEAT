@@ -1,0 +1,94 @@
+*** System Objects ***
+    -Species
+        NEAT Responsibilities:
+            1. Maintain a list of individuals in the species
+            2. Track a representative individual for comparison at reproduction time
+            3. Be founded with at least one member
+            4. Have a mechanism to set the adjusted fitness for its members
+            5. Calculate the adjusted fitnesses of its members
+            6. Track the sum of the adjusted fitness for its members
+            7. Have a mechanism to determine which individuals can reproduce and which will die off (and which will be copied, if any)
+            8. Have a mechanism for mating its individuals
+            9. Maintain a peak fitness score
+            10. Maintain number of generations existed
+            11. Maintain number of generations that peak fitness score has not improved
+            12. Maintain a species ID
+            13. Define a get_representative function for species sorting
+        Data Reporting/Visualization Responsibilities:
+            1. Track the generation the species was created in
+            2. Track the generation the species went extinct
+            3. Track the number of individuals in the species each generation
+            4. Track the total fitness (sum of the adjusted fitnesses) of the species per generation
+            5. Track the top scoring individual's fitness score that generation
+            6. Track/Save the top individual (not just its genome) of the species each generation
+
+    -Individuals
+        NEAT Responsibilities:
+            1. Maintain a Genome
+            2. Track their fitness each generation
+        Data Reporting/Visualization Responsibilities:
+            1. Increment and track their global number (Increment on construction, don't copy or rebuild the individuals)
+
+    -Genes
+        NEAT Responsibilities:
+            1. Maintain an innovation number
+            2. Maintain an enable/disable bit
+            3. Have a mechanism to change the enable/disable bit
+        Data Reporting/Visualization Responsibilities:
+
+            -Connection Genes:
+                NEAT Responsibilities:
+                    1. Define the 'in' node
+                    2. Define the 'out' node
+                    3. Define the connection wt. modifier to the 'out' node
+                    4. Have a mechanism to change the connection wt.
+                Data Reporting/Visualization Responsibilities:
+
+            -Node Genes:
+                NEAT Responsibilities:
+                    1. Maintain a list of candidate input nodes for new inbound connections
+                    2. Maintain a list of candidate output nodes for new outbound connections
+                    3. Define a transfer function to be applied to the input signals
+                    4. Evaluate the transfer function once all signals are received from all input nodes. Return the list of
+                        all downstream connection IDs when evaluating
+                    5. Define type as an input, hidden, or output node
+                    6. Maintain a list of connection gene IDs that signals get propagated down
+                    7. Maintain a list of inbound connection genes
+                    8. Maintain a mutable 'layer' number denoting which segment of the hidden layer the node is on.
+                    9. Define a method to add inbound connections to the inbound_connections list
+                    10. Define a method to add outbound connections to the outbound_connections list
+                    11. Define a reset method to clear inbound and outbound connections, layer, and input nad output candidates
+                Data Reporting/Visualization Responsibilities:
+                    1. Track node evaluations (transfer function firings)
+
+    -Genome
+        NEAT Responsibilities:
+            1. Maintain a list of Connection genes
+            2. Maintain a list of Node genes
+            3. Have a mechanism to add new Connections
+            4. Have a mechanism to add new Nodes
+            5. Have a mechanism to convert the linear genome into a network architecture
+            6. Maintain a dictionary of Node gene ids, sorted by node_type
+        Data Reporting/Visualization Responsibilities:
+            1. Report the number of Node genes (delineated by in/out/hidden type)
+            2, Report the number of Connection genes
+
+    -Visualization Segment Classes
+        1. Track current innovation number each generation
+        2. Poll all individuals for their fitness each generation
+        3. Poll all species for:
+            1. The number of individuals in the species each generation
+            2. The total fitness (sum of the adjusted fitnesses) of the species per generation
+            3. The top scoring individual's fitness score that generation (does this just resolve to the specie's peak fitness?)
+
+
+*** Object Relationships ***
+
+    Species contain:
+        -Individuals, which contain:
+            -A genome, which contains:
+                -Connection genes
+                -Node genes
+
+
+--State machine architecture to cycle through the loop process?

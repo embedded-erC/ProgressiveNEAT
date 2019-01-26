@@ -1,0 +1,70 @@
+
+1. Visualization
+    -Species tracking:
+        -Species creation and extinction events will be shown
+        -The size of each species will be reported every generation
+        -The total fitness (sum of the adjusted fitnesses for each species member) of the species each generation will be tracked
+        -The max fitness of the best individual in that species for that generation will be recorded
+        -The topology of the best individual for that species for each generation will be visible
+
+    -Topology visualization:
+        -Topology should be derivable from an individual's genome
+        -Zones for nodes should be defined as Inputs on the left or bottom, outputs on the right or top, and hidden in between
+        -Innovation numbers will be visible for nodes and connections
+        -Weights will be visible on connections
+
+    -General Statistics:
+        -Total number of individuals spawned will be tracked
+        -Current innovation number by generation will be tracked
+        -Total number of node evaluations will be recorded by generation
+        -A list of all fitnesses for that generation will be saved for optional statistical analysis
+        -The number of hidden nodes will be recorded per generation
+        -The number of total connections will be recorded per generation
+        -The number of disabled connections will be recorded per generation
+
+    -Real-time visualization a-la MarIO for a given ANN?!
+        -Future requirement
+
+2. App Function
+    -App will utilize a settings or parameters file where all relevant settings of the NEAT algo will be found
+    -No parameters that alter NEAT's behavior will be defined within the code. Defined Params:
+        Algo Details:
+            -Population size
+            -Speciation distance coefficients
+            -Speciation threshold
+            -Species extinction generation
+            -Connection wt mutation rate
+            -Connection wt mutation details (% chance perturbed vs % chance random reset)
+            -New node mutation rate
+            -New connection mutation rate
+            -Gene mating disable rate
+            -% genomes from mutation only (non-mating)
+            -Interspecies mating rate
+            -Transfer function
+            -Bias node flag
+        Other Params:
+            -ANN saving settings (Champion each generation, Champion per species per generation, every X generations, etc)
+            -A collect stats flag (Dial in the stats? Or just blanket switch?)
+
+3. ANN structure and output evaluation
+    -Single node recursive connection acceptable:
+        -Must be a hidden node
+        -Max one recursive connection per node
+        -Output from previous evaluation will be used as input for current evaluation (first evaluation will be 0)
+    -There shall be no loops in the network architecture (ie can't spawn new connections to nodes in earlier hidden layers)
+    -Node genes:
+        -On creation, for every type of gene, a historical innovation number is incremented and assigned.
+        -Input Nodes
+            -Normal input nodes:
+                -Start connected to every output node
+                -May evolve connections to hidden nodes
+                -May not evolve connections to other input nodes
+                -Connection wts to other nodes are initially random
+                -Input levels are normalized from -1.0 to 1.0
+            -Bias nodes (when present):
+                -Act as input nodes with input always set to 1
+                -Are otherwise identical to input nodes
+        -Hidden Nodes:
+            -Initially 0 exist
+            -Created from a connection gene, disabling and splitting that gene
+    -Connection genes:

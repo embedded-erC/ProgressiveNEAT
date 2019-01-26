@@ -1,0 +1,105 @@
+
+So what do you do?
+How do I efficiently assemble a network architecture from the linear genome that handles single-fire recursion?
+
+Do I keep the genes as is or do I create a new object woven from the genome?
+
+So if the node genes have a list of all the inbound connections they must also have a list of all outbound
+connections
+
+Lets pare it down to a simple case. One input node to two output nodes. How do we propagate that signal?
+I think we have the Node.evaluate() function return the value to be sent and a list of connection genes to
+send it to. That way the genome class can index it's dictionary by connection gene ID and avoid full-list
+searching. Then you can read the connection wt and the end node ID, placing the signal in the inbound signal
+list of the node gene.
+
+This means the nodes genes will have to have a list of all connection gene ID's that are down (and up?) stream
+of them.
+
+Perhaps this is what the assemble_toplogy function here does. After the individual is spawned, if it's
+genome has changed connection-wise we clear the node genes of all their lists and populate them again.
+
+So, say we have a genome with 2 inputs and 1 output nodes. Assemble_topology will:
+    1. Start at the first input node. Iterate through all the connection genes looking for the ConnGene.in_node
+    that matches the node ID you're on.
+    2. Add that ConnGene.innov_num to the NodeGene.outbound_connections list IF that ConnGene is not disabled
+    3. Add the ConnGene.innov_num to the inbound_connections list of the NodeGene listed in the ConnGene.out_node
+
+    How do we avoid the circular connection problem?!
+        If we had some concept of the 'layer' of the hidden layers we were on, we wouldn't allow connections
+        to nodes at or before the layer the current node is on.
+        But how do we know that?
+        However we do it, maybe we make it happen right after we assemble_topology and exploit that information?
+        Maybe we even tag nodes as what layer they are on during this process?
+
+        Can I show that mating will not result in backward connections?
+            -It seems the stipulation whereby the more fit parent donates excess and disjoint genes saves
+            us from the creation of circular paths:
+                -It saves us from the simple case where two nodes that were previous on the same level had
+                divergent new connection mutations. Say nodes 8 and 9 are on the same hidden layer. Individual
+                X evolves a new connection 8 -> 9. X is now forbidden from evolving 9 -> 8 on his own. Now
+                Say individual Y evolves 9 -> 8. If X and Y mate, these genes will be disjointed, so any
+                offspring from X and Y will only ever have one of those two connection genes.
+                -What about the more complex circular case?
+                    - Say genome X has pathway 3 -> 4 -> 5 and
+                    - Say genome Y has pathway 5 -> 3.
+                    If these mate, those pathway connections will disjoint, so only one will appear in the offspring.
+                -What about:
+                    - Say genome X has pathway 3 -> 4 -> 5 and
+                    - Say genome Y has pathway 5 -> 3 -> 4.
+                    Even here we are safe. Either 5 -> 4 will be disjoint or 5 -> 3 will be disjoint.
+
+        So I think we start with some general code that will be exploited for the visualization aspect as well.
+        -We start with all the input nodes and line them up on the left
+        -Next, we line up all the hidden nodes on the right
+        -Now we iterate through all of the connection genes:
+            -If the in_node is hidden and doesn't exist already, place that hidden node in the lowest hidden layer
+            -If the out_node is hidden and doesn't exist:
+                if the in_node is an input, place the out_node in the the lowest hidden layer
+                if the in_node is hidden, place the out_node in the hidden layer above the in_node
+            -If the out_node is hidden and DOES exist:
+                if the in_node is an input, take no action
+                if the in_node is hidden and at a layer equal to or greater than the out_node, set the out_node layer to 1 above the in_node layer
+            -If both are hidden, place them in -> out in the middle
+
+        <How do we handle insertions that bump every layer forward?>
+            -Perhaps we have layer objects that have nodes associated with them? So if we are forced to found
+            a new layer or insert a layer we can define those operations and have those affected layers incremented.
+            -Such layers might even be used to determine if nodes are ready to fire.
+            -For new connection evolution, any unconnected nodes on the same or higher level are eligible
+
+Sorting Nodes into Layers:
+    Purpose:
+        OK, forget the whole layers thing. Too many chances for collateral damage to occur when shifting layers around.
+        Instead, we'll exploit the NodeGene.outbound_connections information to propagate a layer change to downstream
+        affected nodes. So if we hit a scenario where we are adding a connection to an established out node from an
+        established in node with a higher layer, we change the layer of the subset of nodes that are connected to
+        the out-of-order out node. We'll still use the concept of a layer to aid in visualization, but it won't be a
+        separate object - it will simply be an integer field of the NodeGene.
+    Algorithm Description:
+        -Note the input layer has layer number 1, first hidden layer is 2, etc.
+        1. Index all NodeGenes in a dict with the NodeGene.innov_num as the key and the NodeGene object as the value
+        2. Iterate through all the ConnGenes:
+            -If the ConnGene is disabled, skip to the next ConnGene
+            -Handle the in_node:
+                -If the inbound node does not exist (that is, it's layer is None):
+                    -Set the NodeGene.layer to the lowest hidden layer (layer 2)
+                    -Append the ConnGene.out_node to the NodeGene.outbound_connections
+                    -Store the layer number
+                -If the ConnGene.in_node does exist:
+                    -Append the ConnGene.out_node to the NodeGene.outbound_connections
+                    -Store the layer number of the NodeGene
+            -Handle the out_node:
+                -If the out_node does not exist:
+                    -Set the destination NodeGene's layer to be 1 greater than the stored input layer
+                    -Append the ConnGene.in_node to the NodeGene.inbound_connections field
+                -If the out_node does exist:
+                    -If the out_node's layer is greater than the in_node's layer:
+                        -Append the ConnGene.in_node to the NodeGene.inbound_connections field
+                    -If the out_node's layer is less than or equal to the in_node's layer:
+                        -Calculate the distance in layer number needed to set the out_node's layer to 1 greater than the in_node's layer
+                        -Propagate that calculated layer adjustment to all downstream nodes (using the outbound connections)
+                        -Append the ConnGene.in_node to the NodeGene.inbound_connections field
+
+        At the end of this process, each NodeGene should have a complete list of inbound and outbound connections,
+        as well as layer information.

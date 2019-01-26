@@ -1,0 +1,23 @@
+Future Ideas:
+    1. What about some knowledge of how well the individuals of a species performed in the previous generation? What
+    if changing connection wts a certain way dramatically improved the performance? Why lose that information and
+    randomly perturb again? I suppose if you have enough individuals you're going to get movement in the same way
+    again, but this seems unlikely as the ANN size grows large. You'll need too many individuals.
+
+    If you had some idea of the connection wt. delta the generation before and how that impacted fitness you might be
+    able to leverage that information to close in on connection wt. optimization faster.
+
+    Make sure to avoid thrashing!
+
+    Massively duplicate a few candidate genomes from promising species and only fiddle with the connection weights
+    as described above? Depends on how long any evaluation takes...
+
+    2. Why not keep a global list of all innovations instead of just for the current generation? Connecting hidden node
+    a to output node b is the same structural innovation if it occurs in generation 4 vs. generation 20. How do you
+    even crossover genomes that have different historical markers that specify the same connection?
+
+    3. Tetris as a good start?! Might be interesting...
+
+    4. We're limited to having the number of hidden nodes at any layer be at most as many inputs or outputs, whichever
+     is greater. Since adding node genes splits an existing connection, there is no opportunity to 'widen' the hidden
+     node ranks. Is this a limitation or not?
