@@ -29,7 +29,7 @@ class Species(object):
     """
     id = 0
 
-    def __init__(self, generation_created):
+    def __init__(self, generation_created, representative):
         super().__init__()
 
         # Data reporting fields:
@@ -40,18 +40,24 @@ class Species(object):
         self.champion = None
 
         self.members = []  # Should never be empty!
-        self.representative = None  # This will be an instance of the Individual class. Must not be None
+        self.representative = representative  # This will be an instance of the Individual class. Must not be None
         self.adjusted_fitness_sum = 0
         self.generations_existed = 0
         self.peak_fitness = 0
         self.num_generations_at_peak = 0
 
-    def sum_adjusted_fitnesses(self):
+    def _sort_ascending_fitness(self):
+        self.members.sort(key=lambda individual: individual.fitness)
+
+    def _save_champion(self):
+        self.champion = self.members[-1] if len(self.members) > 5 else None
+
+    def _sum_adjusted_fitnesses(self):
         """
         sum([(individual.fitness / len(self.members)) for individual in self.members])
         :return:
         """
-        self.adjusted_fitness_sum = sum([(individual.fitness / len(self.members) for individual in self.members)])
+        self.adjusted_fitness_sum = sum([(individual.fitness / len(self.members)) for individual in self.members])
 
     def select_offspring(self):
         pass
@@ -70,5 +76,18 @@ class Species(object):
     def get_representative(self):
         return self.representative.genome
 
-# TODO: Tests:
-# Species id test
+    def update_species(self):
+        """
+        -Species creation and extinction events will be shown
+        -The size of each species will be reported every generation
+        -The total fitness (sum of the adjusted fitnesses for each species member) of the species each generation will be tracked
+        -The max fitness of the best individual in that species for that generation will be recorded
+        -The topology of the best individual for that species for each generation will be visible
+
+        This function is called after all the individuals are evaluated against the performance task and before mating.
+        :return:
+        """
+        self._sort_ascending_fitness()
+        self._save_champion()
+        self._sum_adjusted_fitnesses()
+        # TODO: tally generational changes (new function, most likely)

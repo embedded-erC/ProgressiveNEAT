@@ -5,6 +5,8 @@ Module docstring stub
 
 def test_assemble_topology(genome_simple_shuffle):
 
+    # TODO: Add in recursive node connection checks to make sure this test code doesn't fail.
+
     assert genome_simple_shuffle.node_genes[1].layer == 1
     assert genome_simple_shuffle.node_genes[2].layer == 1
     assert genome_simple_shuffle.node_genes[3].layer is None

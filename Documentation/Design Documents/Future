@@ -21,3 +21,16 @@ Future Ideas:
     4. We're limited to having the number of hidden nodes at any layer be at most as many inputs or outputs, whichever
      is greater. Since adding node genes splits an existing connection, there is no opportunity to 'widen' the hidden
      node ranks. Is this a limitation or not?
+
+    5. We don't seem to exempt interspecies offspring form being the representative of the species the next generation.
+    It seems like this could be a problem with species long term continuity. Say the new offspring is chosen as the
+    representative for that species after a given generation. It is very likely it will no longer match in compatibility
+    with any other individual period, much less ones of its own species. It would then carry the torch of the species
+    and the size of the specie would shrink to just that individual.
+        I wonder if I should explicitly exempt interspecies offspring from being the representative for one cycle
+        of species sorting.
+
+    6. I think a mock fitness evaluator would be very useful to check the outcome of many generations of evolution with
+    a given set of mutation params. I could check the genome size, rate of connection and node generation, complexity
+    increase, etc, much faster than actually evaluating an actual goal process. I would have to have some basic
+    rules in place for the fitness setter that goes beyond simply randomly assigning fitness values to the individuals.

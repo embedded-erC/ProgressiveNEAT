@@ -1,5 +1,7 @@
 import pytest
 import Source.NEAT.genome as genome
+import Source.NEAT.species as species
+import Source.NEAT.individual as individual
 
 
 @pytest.fixture
@@ -126,3 +128,43 @@ def genome_five_nodes():
     g1.connection_genes = connections
 
     return g1
+
+
+@pytest.fixture()
+def species_five_members():
+    i1 = individual.Individual("Mock Genome")
+    i2 = individual.Individual("Mock Genome")
+    i3 = individual.Individual("Mock Genome")
+    i4 = individual.Individual("Mock Genome")
+    i5 = individual.Individual("Mock Genome")
+
+    i1.fitness = 10
+    i2.fitness = 20
+    i3.fitness = 40
+    i4.fitness = 80
+    i5.fitness = 0
+
+    s1 = species.Species(1, i1)
+    s1.members = [i1, i2, i3, i4, i5]
+    return s1
+
+
+@pytest.fixture()
+def species_six_members():
+    i1 = individual.Individual("Mock Genome")
+    i2 = individual.Individual("Mock Genome")
+    i3 = individual.Individual("Mock Genome")
+    i4 = individual.Individual("Mock Genome")
+    i5 = individual.Individual("Mock Genome")
+    i6 = individual.Individual("Mock Genome")
+
+    i1.fitness = 10
+    i2.fitness = 20
+    i3.fitness = 40
+    i4.fitness = 80
+    i5.fitness = 0
+    i6.fitness = -30.0
+
+    s1 = species.Species(1, i1)
+    s1.members = [i1, i2, i3, i4, i5, i6]
+    return s1

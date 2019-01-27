@@ -29,7 +29,7 @@ class Genome(object):
     def mutate_connections(self):
         pass
 
-    def mutate_nodes(self):
+    def add_node(self):
         pass
 
     def assemble_topology(self):

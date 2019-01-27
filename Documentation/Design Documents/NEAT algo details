@@ -60,7 +60,7 @@ Algorithm Deconstruction:
         i. Only compute the firing when all input(s) are primed?
         ii. Transfer function executed at the node
 
-    3. Evolution
+    3. Mutation
         a. Changes to both structure and connection wts.
             i. "Connection weights mutate as in any NE system, with each connection either perturbed or not at each generation".
                 ...This will require clarification.
