@@ -19,5 +19,12 @@ class Individual(object):
         super().__init__()
         Individual.num_created += 1
         self.id = Individual.num_created
-        self.genome = genome  # TODO: This may set to None on creation and have a setGenome() call later
+        self.genome = genome
         self.fitness = 0
+
+    def evaluate(self, inputs):
+        """
+        In
+        :param inputs:
+        :return:
+        """

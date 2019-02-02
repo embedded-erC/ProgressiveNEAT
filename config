@@ -3,7 +3,7 @@
 
 [General]
 population size = 150
-# transfer function = 1 / (1 + e^(-4.9x))   - This one might be a future thing after I figure out how to parse it
+transfer function power = -4.9
 
 [Speciation]
 # compatibility_distance = c1(Excess_genes / Num_genes) + c2(Disjoint_genes / Num_genes) + c3 * AvgWtDiffMatching

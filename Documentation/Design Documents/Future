@@ -30,6 +30,11 @@ Future Ideas:
         I wonder if I should explicitly exempt interspecies offspring from being the representative for one cycle
         of species sorting.
 
+        ...On second thought, this might not be a problem with a simple change. If we choose the representative for the
+        next generation after sorting all the individuals into species we're guaranteed to have a representative that
+        is within the compatiblity distance. Oddball offspring from wildly different genomes will already be sorted
+        as founders of novel species.
+
     6. I think a mock fitness evaluator would be very useful to check the outcome of many generations of evolution with
     a given set of mutation params. I could check the genome size, rate of connection and node generation, complexity
     increase, etc, much faster than actually evaluating an actual goal process. I would have to have some basic

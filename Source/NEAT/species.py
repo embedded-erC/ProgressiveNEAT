@@ -2,7 +2,9 @@
     Module-level docstring start
 """
 
-import Source.constants as consts
+import copy
+import random
+from Source.constants import *
 
 
 class Species(object):
@@ -21,7 +23,12 @@ class Species(object):
             10. Maintain number of generations existed
             11. Maintain number of generations that peak fitness score has not improved
             12. Maintain a species ID
-            13. Define a get_representative function for species sorting
+            13. Define a get_representative_genome function for species sorting
+            14. Define a choose_representative function that randomly selects an individual for species sorting comparisons
+            15. Define an Update Species function <THAT DOES WHAT>
+            16. Define a clear_members function <THAT DOES WHAT>
+            17. Define a report_stats method that transfers generational stats data to the visualization library
+            18. Define an add_member function for sorting individuals into species
         Data Reporting/Visualization Responsibilities:
             1. Track the generation the species was created in
             2. Track the generation the species went extinct
@@ -36,28 +43,45 @@ class Species(object):
         Species.id += 1
         self.id = Species.id
         self.generation_created = generation_created
-        self.extinction_generation = 0
+        self.extinction_generation = None
         self.champion = None
 
-        self.members = []  # Should never be empty!
+        self.members = [representative]  # Should never be empty!
         self.representative = representative  # This will be an instance of the Individual class. Must not be None
         self.adjusted_fitness_sum = 0
         self.generations_existed = 0
         self.peak_fitness = 0
         self.num_generations_at_peak = 0
 
-    def _sort_ascending_fitness(self):
+    def _update_generations_and_fitness_peak(self):
+        """
+
+        :return:
+        """
+        self.generations_existed += 1
+        if self.members[-1].fitness > self.peak_fitness:
+            self.peak_fitness = self.members[-1].fitness
+            self.num_generations_at_peak = 1
+        else:
+            self.num_generations_at_peak += 1
+        if self.num_generations_at_peak >= kExtinction_generation and not self.extinction_generation:
+            self.extinction_generation = self.generation_created + self.generations_existed
+
+    def _sort_fitness_ascending(self):
         self.members.sort(key=lambda individual: individual.fitness)
 
     def _save_champion(self):
         self.champion = self.members[-1] if len(self.members) > 5 else None
 
-    def _sum_adjusted_fitnesses(self):
+    def _sum_adjusted_fitness(self):
         """
         sum([(individual.fitness / len(self.members)) for individual in self.members])
         :return:
         """
         self.adjusted_fitness_sum = sum([(individual.fitness / len(self.members)) for individual in self.members])
+
+    def add_member(self, _new_individual):
+        self.members.append(_new_individual)
 
     def select_offspring(self):
         pass
@@ -73,21 +97,46 @@ class Species(object):
         """
         pass
 
-    def get_representative(self):
+    def choose_representative(self):
+        # Future Changes Note:
+        # Consider exempting individuals that were the offspring of interspecies mating last generation in this choice
+        # See the Future document for rational. Original NEAT standard is unrestricted random selection
+        self.representative = random.choice(self.members)
+
+    def clear_members(self, _keep_representative=True):
+        self.members = [self.representative] if _keep_representative else []
+
+    def get_representative_genome(self):
         return self.representative.genome
+
+    def get_members(self, _include_representative=True):
+        if _include_representative:
+            return self.members
+        else:
+            return [individual for individual in self.members if individual != self.representative]
+
+    def report_stats(self):
+        """
+        This method will interface with the Visualization.gather_generational_stats() method.
+
+        :return: stats dictionary
+        """
+        self._sort_fitness_ascending()  # So we don't rely on function calling order outside of this class
+
+        stats = dict()
+        stats["size"] = len(self.members)
+        stats["species fitness"] = self.adjusted_fitness_sum * len(self.members)
+        stats["peak individual"] = copy.deepcopy(self.members[-1])
+        stats["extinction generation"] = self.extinction_generation
+
+        return stats
 
     def update_species(self):
         """
-        -Species creation and extinction events will be shown
-        -The size of each species will be reported every generation
-        -The total fitness (sum of the adjusted fitnesses for each species member) of the species each generation will be tracked
-        -The max fitness of the best individual in that species for that generation will be recorded
-        -The topology of the best individual for that species for each generation will be visible
-
         This function is called after all the individuals are evaluated against the performance task and before mating.
         :return:
         """
-        self._sort_ascending_fitness()
+        self._sort_fitness_ascending()
         self._save_champion()
-        self._sum_adjusted_fitnesses()
-        # TODO: tally generational changes (new function, most likely)
+        self._sum_adjusted_fitness()
+        self._update_generations_and_fitness_peak()

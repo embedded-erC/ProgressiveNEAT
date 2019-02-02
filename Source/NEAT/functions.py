@@ -2,6 +2,7 @@
 Module level docstirng stub
 """
 
+import Source.NEAT.species as species
 from Source.constants import *
 
 
@@ -65,3 +66,23 @@ def compare_genome_compatibility(_genome_one, _genome_two):
     return kCompat_threshold > (kCoeff_excess * (num_excess_genes / highest_num_genes) +
                                 kCoeff_disjoint * (num_disjoint_genes / highest_num_genes) +
                                 kCoeff_wt_diff * avg_wt_diff)
+
+
+def sort_into_species(all_species, _individuals, _current_generation):
+    """
+    *Note this function may append to the list passed as all_species
+    :param all_species:
+    :param _individuals:
+    :param _current_generation:
+    :return:
+    """
+
+    for individual in _individuals:
+        found_species_match = False
+        for single_species in all_species:
+            if compare_genome_compatibility(single_species.get_representative_genome(), individual.genome):
+                single_species.add_member(individual)
+                found_species_match = True
+                break
+        if not found_species_match:
+            all_species.append(species.Species(_current_generation, individual))

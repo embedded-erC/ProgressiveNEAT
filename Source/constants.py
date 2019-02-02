@@ -9,7 +9,7 @@
     # With the exception of the Visualization section, all fields are mandatory. No defaults are provided
     [General]
     population size = 150
-    # transfer function = 1 / (1 + e^(-4.9x))   - This one might be a future thing after I figure out how to parse it
+    transfer function power = -4.9
 
     [Speciation]
     # compatibility_distance = c1(Excess_genes / Num_genes) + c2(Disjoint_genes / Num_genes) + c3 * AvgWtDiffMatching
@@ -47,6 +47,7 @@ try:
 
     # General
     kPop_size = int(config['General']['population size'])
+    kSigmoid_power = float(config['General']['transfer function power'])
 
     # Speciation
     kCompat_threshold = float(config['Speciation']['compatibility threshold'])
