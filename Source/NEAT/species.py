@@ -53,6 +53,23 @@ class Species(object):
         self.peak_fitness = 0
         self.num_generations_at_peak = 0
 
+    def _eliminate_lowest_performers(self):
+        self._sort_fitness_ascending()
+        self.members = self.members[round(len(self.members) * (1 - kReproduction_pct)):]
+
+    def _save_champion(self):
+        self.champion = self.members[-1] if len(self.members) > 5 else None
+
+    def _sort_fitness_ascending(self):
+        self.members.sort(key=lambda individual: individual.fitness)
+
+    def _sum_adjusted_fitness(self):
+        """
+        sum([(individual.fitness / len(self.members)) for individual in self.members])
+        :return:
+        """
+        self.adjusted_fitness_sum = sum([(individual.fitness / len(self.members)) for individual in self.members])
+
     def _update_generations_and_fitness_peak(self):
         """
 
@@ -66,19 +83,6 @@ class Species(object):
             self.num_generations_at_peak += 1
         if self.num_generations_at_peak >= kExtinction_generation and not self.extinction_generation:
             self.extinction_generation = self.generation_created + self.generations_existed
-
-    def _sort_fitness_ascending(self):
-        self.members.sort(key=lambda individual: individual.fitness)
-
-    def _save_champion(self):
-        self.champion = self.members[-1] if len(self.members) > 5 else None
-
-    def _sum_adjusted_fitness(self):
-        """
-        sum([(individual.fitness / len(self.members)) for individual in self.members])
-        :return:
-        """
-        self.adjusted_fitness_sum = sum([(individual.fitness / len(self.members)) for individual in self.members])
 
     def add_member(self, _new_individual):
         self.members.append(_new_individual)
@@ -97,10 +101,18 @@ class Species(object):
         """
         pass
 
+    def mutate(self, innovs_this_generation, current_unused_innov):
+        self._eliminate_lowest_performers()
+        for individual in self.members:
+            if random.random() < kConn_mut_rate:
+                individual.genome.mutate_connections()
+            if random.random() < kNew_node_rate:
+                current_unused_innov = individual.genome.add_node(innovs_this_generation, current_unused_innov)
+            if random.random() < kNew_conn_rate:
+                current_unused_innov = individual.genome.add_connection(innovs_this_generation, current_unused_innov)
+        return current_unused_innov
+
     def choose_representative(self):
-        # Future Changes Note:
-        # Consider exempting individuals that were the offspring of interspecies mating last generation in this choice
-        # See the Future document for rational. Original NEAT standard is unrestricted random selection
         self.representative = random.choice(self.members)
 
     def clear_members(self, _keep_representative=True):

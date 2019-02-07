@@ -164,6 +164,45 @@ def genome_isolated_recursive():
 
     return g1
 
+
+@pytest.fixture()
+def genome_isolated_output_node():
+    c1 = genome.ConnectionGene(1, 3, 0.1, innov_num=5)
+    c2 = genome.ConnectionGene(2, 3, 0.25, innov_num=6)
+    c3 = genome.ConnectionGene(1, 4, 0.1, innov_num=7)
+    c4 = genome.ConnectionGene(2, 4, -0.6, innov_num=8)
+
+    n1 = genome.NodeGene(node_type='input', innov_num=1)
+    n2 = genome.NodeGene(node_type='input', innov_num=2)
+    n3 = genome.NodeGene(node_type='output', innov_num=3)
+    n4 = genome.NodeGene(node_type='output', innov_num=4)
+
+    # Isolate output node 4
+    c3.enabled = False
+    c4.enabled = False
+
+    connections = {
+        c1.innov_num: c1,
+        c2.innov_num: c2,
+        c3.innov_num: c3,
+        c4.innov_num: c4
+    }
+
+    nodes = {
+        n1.innov_num: n1,
+        n2.innov_num: n2,
+        n3.innov_num: n3,
+        n4.innov_num: n4,
+    }
+
+    g1 = genome.Genome()
+
+    g1.node_genes = nodes
+    g1.connection_genes = connections
+
+    return g1
+
+
 @pytest.fixture()
 def genome_five_nodes():
     c1 = genome.ConnectionGene(1, 3, 0.6, innov_num=5)
@@ -272,6 +311,48 @@ def genome_two_outputs():
         c4.innov_num: c4,
         c5.innov_num: c5,
         c6.innov_num: c6
+    }
+
+    nodes = {
+        n1.innov_num: n1,
+        n2.innov_num: n2,
+        n3.innov_num: n3,
+        n4.innov_num: n4,
+        n5.innov_num: n5
+    }
+
+    g1 = genome.Genome()
+
+    g1.node_genes = nodes
+    g1.connection_genes = connections
+
+    return g1
+
+
+@pytest.fixture()
+def genome_recursive_two_outputs():
+    c1 = genome.ConnectionGene(1, 3, 1.0, innov_num=5)
+    c2 = genome.ConnectionGene(2, 3, 1.0, innov_num=6)
+    c3 = genome.ConnectionGene(1, 4, -1.0, innov_num=7)
+    c4 = genome.ConnectionGene(2, 4, -1.0, innov_num=8)
+    c5 = genome.ConnectionGene(1, 9, 0.0, innov_num=10)
+    c6 = genome.ConnectionGene(9, 4, 0.5, innov_num=11)
+    c7 = genome.ConnectionGene(9, 9, 1.0, innov_num=12)
+
+    n1 = genome.NodeGene(node_type='input', innov_num=1)
+    n2 = genome.NodeGene(node_type='input', innov_num=2)
+    n3 = genome.NodeGene(node_type='output', innov_num=3)
+    n4 = genome.NodeGene(node_type='output', innov_num=4)
+    n5 = genome.NodeGene(innov_num=9)
+
+    connections = {
+        c1.innov_num: c1,
+        c2.innov_num: c2,
+        c3.innov_num: c3,
+        c4.innov_num: c4,
+        c5.innov_num: c5,
+        c6.innov_num: c6,
+        c7.innov_num: c7
     }
 
     nodes = {

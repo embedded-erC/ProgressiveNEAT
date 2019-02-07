@@ -21,11 +21,15 @@
     compatibility threshold = 3.0
     extinction generation = 15
 
+    # Take this percentage of the best performers as the basis for the next generation
+    percentage allowed to reproduce = 0.75
+
     [Mutation]
     # Chances in pct / 100. So 0.8 is an 80% chance of occurrence
     connection mutation chance = 0.8
+    max connection change = 0.3
     uniform weight change chance = 0.9
-    random new weight chance = 0.1
+    # random new weight chance = 1.0 - uniform weight change chance
     new node chance = 0.03
     new connection chance = 0.05
 
@@ -41,7 +45,7 @@
 import configparser
 
 config = configparser.ConfigParser()
-config.read('/home/erc/PycharmProjects/ProgressiveNEAT/config')
+config.read('/home/erc/PycharmProjects/ProgressiveNEAT/config')  # TODO: Need to define a testing config
 
 try:
 
@@ -56,13 +60,15 @@ try:
     kCoeff_disjoint = float(config['Speciation']['c2'])
     kCoeff_wt_diff = float(config['Speciation']['c3'])
     kGene_threshold = int(config['Speciation']['gene counting threshold'])
+    kReproduction_pct = float(config['Speciation']['percentage allowed to reproduce'])
 
     # Mutation
     kConn_mut_rate = float(config['Mutation']['connection mutation chance'])
+    kMax_conn_change = float(config['Mutation']['max connection change'])  # TODO: What should this range be?
     kWeight_adjusted_rate = float(config['Mutation']['uniform weight change chance'])
-    kRandom_weight_rate = float(config['Mutation']['random new weight chance'])
-    kConn_new_rate = float(config['Mutation']['new connection chance'])
-    kNode_new_rate = float(config['Mutation']['new node chance'])
+    kRandom_weight_rate = 1 - kWeight_adjusted_rate
+    kNew_conn_rate = float(config['Mutation']['new connection chance'])
+    kNew_node_rate = float(config['Mutation']['new node chance'])
 
     # Mating
     kConn_still_disabled_rate = float(config['Mating']['gene disabled if disabled in a parent chance'])

@@ -5,18 +5,6 @@
 import os
 
 
-def sort_into_species(_individuals):
-
-    # Maintain an ordered list of species
-    # After fitness evaluations are complete, choose a representative (at random per species among it's members)
-    # Iterate through the individuals:
-        # If they return True from compare_genome_compat() then add them to the species.members field (or the method for this)
-        # If we run to the end of the list, found a new species with that individual as the representative.
-
-    # functions.compare_genome_compatibility()
-    pass
-
-
 if __name__ == "__main__":
     """
     Algorithm Flow:
@@ -33,18 +21,9 @@ if __name__ == "__main__":
             it's performance measure after the run. It will get a bolus of individuals (size depending on how parallel 
             we can run client code), which it will return to the main network module for generational advancement.
         
-            3. Evaluate each network against the goal (play the game, try the XOR, whatever)
+            3. Evaluate each network against the goal (play the game, try the XOR, whatever)  
                 
-                # TODO: When evaluating through the network, if a node has only itself or zero inbound connections,
-                # TODO: send out a pulse of 0.0 to all outbound connections to prevent network lock.       
-                
-                Here add to assemble_topology to add the outbound connection wts to a new NodeGene param, 
-                outbound_weights. outbound_weights will be multiplied by the activation pulse strength, then zipped
-                with the outbound_connections to notify the next series of nodes. 
-                
-                Also thinking I can order all nodes in a genome by layer, then simply iterate though them all from
-                lowest to highest layer (put them in an ordered dict?), notifying all outbound nodes of inbound
-                connection pulses. Will have to handle recursion and island cases here.
+                -TODO: Write the algorithm (with charts) for network evaluation
                 
                 -Will probably have to split this into multiprocess/multithread to have a chance.
                 -This will populate the individuals with their fitness scores
@@ -63,8 +42,25 @@ if __name__ == "__main__":
                 -Choose representatives from among members
                     -For all species: Species.choose_representative()
             5. Reproduce
-                -Mutate (Mate first?!)
+                
+                -Mutate
+                    -Track this generation's innovations!
+                    -Eliminate lowest performers per species (select reproducers)
+                    -kConn_mut_rate to mutate connections. If this happens:
+                        -kWeight_adjusted_rate per connection to perturb uniformly
+                        -1.0 - kWeight_adjusted_rate for new, random connection weight
+                    -kNode_new_rate chance to add a node.
+                    -kConn_new_rate to add a new connection w/ a random weight
+                    
                 -Mate (Mutate first?!)
+                    -Assign number of new offspring per species, proportional to adjusted fitness
+                        -Rounded up. Total before rounding will be kPop_size
+                        -New species get at least 5 slots
+                    -Champions are copied over AND still used for mating.
+                    -kMutation_only_rate chance that an offspring slot will be from mutation only. 
+                    -kInterspecies_rate chance that an offspring slot will be from interspecies mating
+                    -Choose pairs to mate
+                        
             6. Build genome topologies in prep for step (3) again.      
                 
     """

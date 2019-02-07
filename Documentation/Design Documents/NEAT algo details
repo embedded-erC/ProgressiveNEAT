@@ -30,11 +30,6 @@ analysis.
 
 
 OPEN QUESTIONS:
-    1. How to stream data to the inputs of the ANN?
-    2. How to propagate the signal through the ANN?
-        i. Specifically the transfer function details and
-        ii. How to handle recursive connections.
-            -Save the pulse from the previous network evaluation as an input for the next eval? This makes sense.
     3. How do typical TWEANNs mutate connection wts?
     4. Mutate before crossing over? Mutate after? Probably before...
     5. What do you do if you have a species with only 1 member?
@@ -113,7 +108,7 @@ Algorithm Deconstruction:
             i. c1 = 1.0
             ii. c2 = 1.0
             iii. c3 = 0.4 (3.0 for 1k population size. More room for species)
-            iv. cdist_thresh = 3.0 (4.0 for 1k population size to make roon for larger c3)
+            iv. cdist_thresh = 3.0 (4.0 for 1k population size to make room for larger c3)
             v. If a species' maximum fitness does not increase for 15 generations it goes extinct
         b. Reproduction/Mutation:
             i. Champion of any species w/ > 5 individuals was copied to the next generation unchanged. Still used for mating.

@@ -2,8 +2,10 @@
     Module-level docstring start
 """
 
-from math import exp
 from collections import OrderedDict
+from math import exp
+import random
+
 from Source.constants import *
 
 
@@ -31,9 +33,54 @@ class Genome(object):
         self.node_genes = OrderedDict()
 
     def mutate_connections(self):
-        pass
+        weight_change = random.uniform(-kMax_conn_change, kMax_conn_change)
+        for connection in self.connection_genes.values():
+            if random.random() < kWeight_adjusted_rate:
+                connection.conn_weight += weight_change
+            else:
+                connection.conn_weight = random.gauss(0, 1)
 
-    def add_node(self):
+    def add_node(self, innovs_this_generation, current_unused_innov):
+        """
+        node_a --(0.3)--> node_b    becomes:    node_a --(1.0)--> node_c --(0.3)--> node_b
+
+        :param innovs_this_generation - dict containing every innovation this generation.
+        Keys for nodes are simply the innov_num of the connection gene that was split
+        Values are the innov_num assigned to that stored node:
+        :param current_unused_innov:
+        :return:
+        """
+        conn_to_break = random.choice(
+            [conn for conn in self.connection_genes.values() if conn.in_node != conn.out_node])
+        conn_to_break.enabled = False
+
+        # Choose the new innovation numbers for the genes about to be created:
+        new_node_innov, new_inbound_conn_innov, new_outbound_conn_innov = 0, 0, 0
+        if conn_to_break.innov_num in innovs_this_generation:
+            new_node_innov = innovs_this_generation[conn_to_break.innov_num]
+        else:
+            new_node_innov = current_unused_innov
+            current_unused_innov += 3  # One for the new node, two for the new connections
+        new_inbound_conn_innov = new_node_innov + 1
+        new_outbound_conn_innov = new_node_innov + 2
+
+        # We've got the innovation numbers. Create the new genes:
+        self.node_genes[new_node_innov] = NodeGene(innov_num=new_node_innov)
+        self.connection_genes[new_inbound_conn_innov] = ConnectionGene(conn_to_break.in_node, new_node_innov, 1.0,
+                                                                       innov_num=new_inbound_conn_innov)
+        self.connection_genes[new_outbound_conn_innov] = ConnectionGene(new_node_innov, conn_to_break.out_node,
+                                                                        conn_to_break.conn_weight,
+                                                                        innov_num=new_outbound_conn_innov)
+        return current_unused_innov
+
+    def add_connection(self, innovs_this_generation, current_unused_innov):
+        """
+        :param innovs_this_generation - dict containing every innovation this generation.
+        Keys for connections are a tuple of (in_node, out_node) for the new connection
+        Values are the innov_num assigned to that stored connection:
+        :param current_unused_innov:
+        :return:
+        """
         pass
 
     def assemble_topology(self):
@@ -84,6 +131,7 @@ class Genome(object):
         Align all output nodes to the highest output node's layer
         :return:
         """
+
         highest_layer = max([node.layer for node in self.node_genes.values()])
         for node in self.node_genes.values():
             node.layer = highest_layer if node.node_type == "output" else node.layer
@@ -120,10 +168,9 @@ class Genome(object):
 
         for ii in range(len(inputs)):
             # Prime the input nodes
-            self.node_genes[ii].inbound_activations.append(inputs[ii])
-        for node in self.node_genes:
+            self.node_genes[ii + 1].inbound_activations.append(inputs[ii])
+        for node in self.node_genes.values():
             if node.node_type == 'output':
-                # TODO: How to make sure our layer sorting cannot alter the order of output nodes
                 outputs.append(node.evaluate())
             else:
                 for downstream_node, activation in node.evaluate():
@@ -164,12 +211,6 @@ class ConnectionGene(Gene):
         self.conn_weight = conn_weight
         self.enabled = True
 
-    def set_connection_weight(self):
-        pass
-
-    def set_enabled(self):
-        pass
-
 
 class NodeGene(Gene):
     """
@@ -202,7 +243,7 @@ class NodeGene(Gene):
         self.outbound_weights = []
         self.inbound_connections = []   # TODO: Can I use this for anything besides testing support?
         self.inbound_activations = []
-        self.layer = 1 if self.node_type == 'input' else None
+        self.layer = 1 if self.node_type == 'input' else -1
         self.is_isolated = False
 
     def reset(self):
@@ -213,7 +254,7 @@ class NodeGene(Gene):
         self.outbound_connections = []
         self.outbound_weights = []
         self.num_evaluations = 0
-        self.layer = 1 if self.node_type == 'input' else None
+        self.layer = 1 if self.node_type == 'input' else -1
 
     def add_inbound_connection(self, _inbound):
         self.inbound_connections.append(_inbound)
@@ -237,7 +278,7 @@ class NodeGene(Gene):
         if self.node_type == 'input':
             return sum(self.inbound_activations)
         elif not self.is_isolated:
-            return 1.0 / (1.0 + exp(-kSigmoid_power * sum(self.inbound_activations)))
+            return 1.0 / (1.0 + exp(kSigmoid_power * sum(self.inbound_activations)))
         else:
             return 0
 

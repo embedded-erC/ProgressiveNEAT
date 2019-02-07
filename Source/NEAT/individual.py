@@ -28,3 +28,4 @@ class Individual(object):
         :param inputs:
         :return:
         """
+        return self.genome.evaluate(inputs)

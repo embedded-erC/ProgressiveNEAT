@@ -120,3 +120,11 @@ def test_add_member(species_six_members):
     assert len(species_six_members.members) == 6
     species_six_members.add_member("Mock Individual")
     assert len(species_six_members.members) == 7
+
+
+def test_eliminate_lowest_performers(species_six_members):
+    assert len(species_six_members.members) == 6
+    species_six_members._eliminate_lowest_performers()
+    assert len(species_six_members.members) == 4
+    assert species_six_members.members[0].fitness == 10
+    assert species_six_members.members[3].fitness == 80

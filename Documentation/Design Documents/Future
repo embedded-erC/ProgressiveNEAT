@@ -14,13 +14,18 @@ Future Ideas:
 
     2. Why not keep a global list of all innovations instead of just for the current generation? Connecting hidden node
     a to output node b is the same structural innovation if it occurs in generation 4 vs. generation 20. How do you
-    even crossover genomes that have different historical markers that specify the same connection?
+    even crossover genomes that have different historical markers that specify the same connection? See the 'limitation'
+    note to point(4) below. This implies that might be well served by keeping a permanent list of all CONNECTIONS, but
+    not a permanent list of all NODE mutations.
 
     3. Tetris as a good start?! Might be interesting...
 
     4. We're limited to having the number of hidden nodes at any layer be at most as many inputs or outputs, whichever
      is greater. Since adding node genes splits an existing connection, there is no opportunity to 'widen' the hidden
      node ranks. Is this a limitation or not?
+        It is not a limitation. There is a mechanism for widening the network width. Continually selecting the same
+        connection gene as the gene to split for new node mutations will stack up nodes on the same layer, widening
+        that layer.
 
     5. We don't seem to exempt interspecies offspring form being the representative of the species the next generation.
     It seems like this could be a problem with species long term continuity. Say the new offspring is chosen as the
