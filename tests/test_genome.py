@@ -157,11 +157,12 @@ def test_mutate_connections(genome_simple_shuffle):
     assert 9000 < matched < 9400
 
 
-def test_add_node(genome_four_nodes, genome_four_nodes_recursive):
+def test_add_brand_new_node(genome_four_nodes):
 
     # Simulate node that hasn't been created this generation
     old_largest_innov = genome_four_nodes.get_greatest_innov()
-    genome_four_nodes.add_node(dict(), old_largest_innov + 1)
+    nodes_this_generation = dict()
+    genome_four_nodes.add_node(nodes_this_generation, old_largest_innov + 1)
     assert old_largest_innov + 3 == genome_four_nodes.get_greatest_innov()
     assert isinstance(genome_four_nodes.node_genes[old_largest_innov + 1], NodeGene)
     assert isinstance(genome_four_nodes.connection_genes[old_largest_innov + 2], ConnectionGene)
@@ -169,6 +170,21 @@ def test_add_node(genome_four_nodes, genome_four_nodes_recursive):
 
     disabled_test = [conn for conn in genome_four_nodes.connection_genes.values() if conn.enabled is False]
     assert len(disabled_test) == 1
+    assert len(nodes_this_generation) == 3
+
+
+def test_add_already_innovated_node(genome_four_nodes_recursive):
 
     # Simulate node that has already been created this generation
-    previous_nodes =
+    old_next_largest_innov = genome_four_nodes_recursive.get_greatest_innov() + 1
+    old_genome_size = genome_four_nodes_recursive.get_genome_size()
+    simulated_nodes = dict()
+    for conn_gene in genome_four_nodes_recursive.connection_genes.values():
+        simulated_nodes[conn_gene.innov_num] = old_next_largest_innov
+    old_simulated_nodes_keys = simulated_nodes.keys()
+
+    # Try to add a new node that should have already been created:
+    new_next_largest_innov = genome_four_nodes_recursive.add_node(simulated_nodes, old_next_largest_innov)
+    assert new_next_largest_innov == old_next_largest_innov
+    assert old_simulated_nodes_keys == simulated_nodes.keys()
+    assert genome_four_nodes_recursive.get_genome_size() == old_genome_size + 3

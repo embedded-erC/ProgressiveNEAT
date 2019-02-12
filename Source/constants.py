@@ -45,7 +45,7 @@
 import configparser
 
 config = configparser.ConfigParser()
-config.read('/home/erc/PycharmProjects/ProgressiveNEAT/config')  # TODO: Need to define a testing config
+config.read('C:\\Users\\erC\\PycharmProjects\\ProgressiveNEAT\\config')  # TODO: Need to define a testing config
 
 try:
 
