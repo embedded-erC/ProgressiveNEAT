@@ -61,6 +61,12 @@ class Genome(object):
         else:
             new_node_innov = current_unused_innov
             current_unused_innov += 3  # One for the new node, two for the new connections
+
+            # Add the new node and connection genes to the innovations this generation
+            innovs_this_generation[conn_to_break.innov_num] = new_node_innov
+            innovs_this_generation[(conn_to_break.in_node, new_node_innov)] = new_node_innov + 1
+            innovs_this_generation[(new_node_innov, conn_to_break.out_node)] = new_node_innov + 2
+
         new_inbound_conn_innov = new_node_innov + 1
         new_outbound_conn_innov = new_node_innov + 2
 
