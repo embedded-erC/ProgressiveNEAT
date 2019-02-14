@@ -171,4 +171,50 @@ def test_add_node(genome_four_nodes, genome_four_nodes_recursive):
     assert len(disabled_test) == 1
 
     # Simulate node that has already been created this generation
-    previous_nodes =
+    # previous_nodes =
+
+
+def test_find_eligible_connections(genome_six_nodes):
+    genome_six_nodes.assemble_topology()
+    eligible_connections = genome_six_nodes._find_eligible_connections()
+    assert (2, 9) in eligible_connections
+    assert (2, 12) in eligible_connections
+    assert (2, 4) in eligible_connections
+    assert (9, 9) in eligible_connections
+    assert (9, 12) in eligible_connections
+    assert (9, 4) in eligible_connections
+    assert (12, 9) in eligible_connections
+    assert (12, 12) in eligible_connections
+    assert (12, 3) in eligible_connections
+    assert (4, 4) in eligible_connections
+    assert (4, 9) not in eligible_connections
+    assert (1, 1) not in eligible_connections
+    assert (1, 2) not in eligible_connections
+    assert (3, 1) not in eligible_connections
+    assert (1, 3) not in eligible_connections
+
+
+def test_add_novel_connection(genome_four_nodes):
+    innovs_this_generation = dict()  # TODO: Align this with what we did in the test above after the merge
+    old_next_largest_innov = genome_four_nodes.get_greatest_innov() + 1
+    old_genome_size = genome_four_nodes.get_genome_size()
+    genome_four_nodes.assemble_topology()
+    new_next_largest_innov = genome_four_nodes.add_connection(innovs_this_generation, old_next_largest_innov)
+
+    assert new_next_largest_innov == old_next_largest_innov + 1
+    assert len(innovs_this_generation) == 1
+    assert old_next_largest_innov in innovs_this_generation.values()
+    assert genome_four_nodes.get_genome_size() == old_genome_size + 1
+
+
+def test_add_existing_connection_innovation(genome_four_nodes):
+    innovs_this_generation = {(2, 4): 9, (4, 4): 9}
+    old_next_largest_innov = genome_four_nodes.get_greatest_innov() + 1
+    old_genome_size = genome_four_nodes.get_genome_size()
+    genome_four_nodes.assemble_topology()
+    new_next_largest_innov = genome_four_nodes.add_connection(innovs_this_generation, old_next_largest_innov)
+
+    assert new_next_largest_innov == old_next_largest_innov
+    assert len(innovs_this_generation) == 2
+    assert new_next_largest_innov + 1 not in innovs_this_generation.values()
+    assert genome_four_nodes.get_genome_size() == old_genome_size + 1

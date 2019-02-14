@@ -372,6 +372,16 @@ def genome_recursive_two_outputs():
 
 
 @pytest.fixture()
+def species_one_member():
+    i1 = individual.Individual("Mock Genome")
+    i1.fitness = 1
+
+    s1 = species.Species(0, "Mock Representative")
+    s1.members = [i1]
+    return s1
+
+
+@pytest.fixture()
 def species_five_members():
     i1 = individual.Individual("Mock Genome")
     i2 = individual.Individual("Mock Genome")
@@ -380,10 +390,10 @@ def species_five_members():
     i5 = individual.Individual("Mock Genome")
 
     i1.fitness = 10
-    i2.fitness = 20
+    i2.fitness = 15
     i3.fitness = 40
     i4.fitness = 80
-    i5.fitness = 0
+    i5.fitness = 5
 
     s1 = species.Species(0, "Mock Representative")
     s1.members = [i1, i2, i3, i4, i5]
@@ -400,10 +410,10 @@ def species_six_members():
     i6 = individual.Individual("Mock Genome")
 
     i1.fitness = 10
-    i2.fitness = 20
+    i2.fitness = 15
     i3.fitness = 40
     i4.fitness = 80
-    i5.fitness = 0
+    i5.fitness = 5
     i6.fitness = -30.0
 
     s1 = species.Species(0, "Mock Representative")

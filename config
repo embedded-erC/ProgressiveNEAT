@@ -14,6 +14,7 @@ c3 = 0.4
 gene counting threshold = 20
 compatibility threshold = 3.0
 extinction generation = 15
+minimum new species size = 5
 
 # Take this percentage of the best performers as the basis for the next generation
 percentage allowed to reproduce = 0.75

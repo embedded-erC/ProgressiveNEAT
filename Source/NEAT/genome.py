@@ -73,6 +73,21 @@ class Genome(object):
                                                                         innov_num=new_outbound_conn_innov)
         return current_unused_innov
 
+    def _find_eligible_connections(self):
+        """
+        :return a list of tuples of the form (input_node, output_node) representing possible, valid new connections:
+        """
+        existing_connections = [(conn.in_node, conn.out_node) for conn in self.connection_genes.values()]
+        candidate_connections = []
+        for first_node in self.node_genes.values():
+            for second_node in self.node_genes.values():
+                if second_node.layer >= first_node.layer and \
+                    (first_node.innov_num, second_node.innov_num) not in existing_connections and \
+                        first_node.node_type != 'output' and \
+                        second_node.node_type != 'input':
+                    candidate_connections.append((first_node.innov_num, second_node.innov_num))
+        return candidate_connections
+
     def add_connection(self, innovs_this_generation, current_unused_innov):
         """
         :param innovs_this_generation - dict containing every innovation this generation.
@@ -81,7 +96,17 @@ class Genome(object):
         :param current_unused_innov:
         :return:
         """
-        pass
+        new_connection = random.choice(self._find_eligible_connections())
+        connection_innov = 0
+        if new_connection in innovs_this_generation:
+            connection_innov = innovs_this_generation[new_connection]
+        else:
+            connection_innov = current_unused_innov
+            current_unused_innov += 1
+            innovs_this_generation[new_connection] = connection_innov
+        self.connection_genes[connection_innov] = ConnectionGene(new_connection[0], new_connection[1],
+                                                                 random.gauss(0, 1), innov_num=connection_innov)
+        return current_unused_innov
 
     def assemble_topology(self):
         """

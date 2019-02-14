@@ -3,6 +3,7 @@ Module-level docstring stub
 """
 from Source.constants import *
 from Source.NEAT.individual import Individual
+from Source.NEAT.species import Species
 
 
 def test_sort_ascending_fitness(species_six_members):
@@ -25,6 +26,7 @@ def test_save_champion(species_five_members, species_six_members):
 
     assert species_five_members.champion is None
     assert species_six_members.champion is not None
+    assert species_six_members.champion is not species_six_members.members[-1]  # We want a copy, not a reference.
 
 
 def test_incrementing_species_id(species_six_members, species_five_members):
@@ -128,3 +130,61 @@ def test_eliminate_lowest_performers(species_six_members):
     assert len(species_six_members.members) == 4
     assert species_six_members.members[0].fitness == 10
     assert species_six_members.members[3].fitness == 80
+
+
+def test_mate(genome_four_nodes, genome_five_nodes):
+    i1 = Individual(genome_four_nodes)
+    i2 = Individual(genome_five_nodes)
+
+    i1.fitness = 10
+    i2.fitness = 5
+
+    offspring = Species.mate(i1, i2)
+    assert offspring.genome.get_genome_size() == i1.genome.get_genome_size()
+    for innov_num in range(1, 9):
+        assert innov_num in offspring.genome.get_all_gene_ids()
+
+
+def test_mate_inverted_fitness(genome_four_nodes, genome_five_nodes):
+    i1 = Individual(genome_four_nodes)
+    i2 = Individual(genome_five_nodes)
+
+    i1.fitness = 5
+    i2.fitness = 10
+
+    offspring = Species.mate(i1, i2)
+    assert offspring.genome.get_genome_size() == i2.genome.get_genome_size()
+    for innov_num in range(1, 12):
+        assert innov_num in offspring.genome.get_all_gene_ids()
+
+
+def test_select_one_offspring(species_one_member):
+    num_assigned_offspring = 10
+    offspring = species_one_member.select_offspring(num_assigned_offspring)
+    assert len(offspring) == kMin_new_species_size
+    assert len([individual for individual in offspring if individual.fitness]) == 5
+
+
+def test_select_offspring_no_champion(species_five_members, genome_five_nodes):
+    num_assigned_offspring = 10
+    for individual in species_five_members.members:
+        # Replace the mock genomes with actual genomes
+        individual.genome = genome_five_nodes
+    species_five_members.update_species()
+
+    offspring = species_five_members.select_offspring(num_assigned_offspring)
+    assert len(offspring) == num_assigned_offspring
+    assert len([individual for individual in offspring if individual.fitness]) == 2
+
+
+def test_select_offspring_with_champion(species_six_members, genome_five_nodes):
+    num_assigned_offspring = 10
+    for individual in species_six_members.members:
+        # Replace the mock genomes with actual genomes
+        individual.genome = genome_five_nodes
+    species_six_members.update_species()
+
+    offspring = species_six_members.select_offspring(num_assigned_offspring)
+    assert len(offspring) == num_assigned_offspring
+    assert len([individual for individual in offspring if individual.fitness]) == 3
+    assert species_six_members.champion in offspring

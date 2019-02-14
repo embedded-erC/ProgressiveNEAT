@@ -2,7 +2,7 @@
 Module level docstirng stub
 """
 
-import Source.NEAT.species as species
+from Source.NEAT.species import Species
 from Source.constants import *
 
 
@@ -85,4 +85,4 @@ def sort_into_species(all_species, _individuals, _current_generation):
                 found_species_match = True
                 break
         if not found_species_match:
-            all_species.append(species.Species(_current_generation, individual))
+            all_species.append(Species(_current_generation, individual))

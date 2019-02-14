@@ -20,6 +20,7 @@
     gene counting threshold = 20
     compatibility threshold = 3.0
     extinction generation = 15
+    minimum new species size = 4
 
     # Take this percentage of the best performers as the basis for the next generation
     percentage allowed to reproduce = 0.75
@@ -61,6 +62,7 @@ try:
     kCoeff_wt_diff = float(config['Speciation']['c3'])
     kGene_threshold = int(config['Speciation']['gene counting threshold'])
     kReproduction_pct = float(config['Speciation']['percentage allowed to reproduce'])
+    kMin_new_species_size = int(config['Speciation']['minimum new species size'])
 
     # Mutation
     kConn_mut_rate = float(config['Mutation']['connection mutation chance'])

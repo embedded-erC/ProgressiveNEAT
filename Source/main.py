@@ -52,14 +52,17 @@ if __name__ == "__main__":
                     -kNode_new_rate chance to add a node.
                     -kConn_new_rate to add a new connection w/ a random weight
                     
-                -Mate (Mutate first?!)
+                -Mate
                     -Assign number of new offspring per species, proportional to adjusted fitness
                         -Rounded up. Total before rounding will be kPop_size
                         -New species get at least 5 slots
-                    -Champions are copied over AND still used for mating.
+                    -Champions are used for mating
                     -kMutation_only_rate chance that an offspring slot will be from mutation only. 
                     -kInterspecies_rate chance that an offspring slot will be from interspecies mating
                     -Choose pairs to mate
+                -Gather offspring
+                    -return a list that includes champions and all mated and mutated genomes in new individuals (where not copied)
+                    
                         
             6. Build genome topologies in prep for step (3) again.      
                 

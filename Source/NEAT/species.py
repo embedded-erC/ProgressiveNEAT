@@ -5,6 +5,8 @@
 import copy
 import random
 from Source.constants import *
+from Source.NEAT.genome import Genome
+from Source.NEAT.individual import Individual
 
 
 class Species(object):
@@ -36,6 +38,41 @@ class Species(object):
     """
     id = 0
 
+    @staticmethod
+    def mate(_mother, _father):
+        """
+        This might take other genomes as arguments and be static. That way I could just use the Species class
+        for intraspecies mating
+
+        This should return an new individual which will go into the pool of individuals that will be ready to run
+        the next sequence of attempts at the goal.
+        :param _mother:
+        :param _father:
+        :return:
+        """
+        offspring_genome = Genome()
+        if _father.fitness > _mother.fitness:
+            # Mother always has the higher fitness
+            _mother, _father = _father, _mother
+
+        for node_gene_id in _mother.genome.node_genes:
+            if node_gene_id in _father.genome.node_genes:
+                offspring_genome.node_genes[node_gene_id] = copy.deepcopy(
+                    random.choice([_mother.genome.node_genes[node_gene_id],
+                                   _father.genome.node_genes[node_gene_id]]))
+            else:
+                offspring_genome.node_genes[node_gene_id] = copy.deepcopy(_mother.genome.node_genes[node_gene_id])
+
+        for conn_gene_id in _mother.genome.connection_genes:
+            if conn_gene_id in _father.genome.connection_genes:
+                offspring_genome.connection_genes[conn_gene_id] = copy.deepcopy(
+                    random.choice([_mother.genome.connection_genes[conn_gene_id],
+                                   _father.genome.connection_genes[conn_gene_id]]))
+            else:
+                offspring_genome.connection_genes[conn_gene_id] = copy.deepcopy(
+                    _mother.genome.connection_genes[conn_gene_id])
+        return Individual(offspring_genome)
+
     def __init__(self, generation_created, representative):
         super().__init__()
 
@@ -58,7 +95,7 @@ class Species(object):
         self.members = self.members[round(len(self.members) * (1 - kReproduction_pct)):]
 
     def _save_champion(self):
-        self.champion = self.members[-1] if len(self.members) > 5 else None
+        self.champion = copy.deepcopy(self.members[-1]) if len(self.members) > 5 else None
 
     def _sort_fitness_ascending(self):
         self.members.sort(key=lambda individual: individual.fitness)
@@ -87,19 +124,27 @@ class Species(object):
     def add_member(self, _new_individual):
         self.members.append(_new_individual)
 
-    def select_offspring(self):
-        pass
-
-    def mate(self):
+    def select_offspring(self, num_assigned_offspring):
         """
-        This might take other genomes as arguments and be static. That way I could just use the Species class
-        for intraspecies mating
-
-        This should return an new individual which will go into the pool of individuals that will be ready to run
-        the next sequence of attempts at the goal.
+        Thinking this can work as follows:
+        1. Based on this species' relative fitness, it will be assigned a number of offspring
+        2. It will first copy over the number required by mutation only
+        3. It will then fill the rest with offspring from random pairs of mated genomes
         :return:
         """
-        pass
+        all_offspring = []
+        if len(self.members) == 1:
+            for ii in range(kMin_new_species_size):
+                all_offspring.append(copy.deepcopy(self.members[0]))
+        else:
+            if self.champion:
+                all_offspring.append(self.champion)
+            random.shuffle(self.members)
+            all_offspring += self.members[:round(kMutation_only_rate * num_assigned_offspring)]
+            while len(all_offspring) < num_assigned_offspring:
+                parents = random.sample(self.members, k=2)
+                all_offspring.append(Species.mate(parents[0], parents[1]))
+        return all_offspring
 
     def mutate(self, innovs_this_generation, current_unused_innov):
         self._eliminate_lowest_performers()
