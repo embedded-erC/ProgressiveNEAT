@@ -82,6 +82,7 @@ def test_update_generations_and_fitness_peak(species_six_members):
 
 def test_choose_representative(species_six_members):
 
+    species_six_members.representative = "Mock Representative"
     assert species_six_members.representative == "Mock Representative"
 
     species_six_members.choose_representative()
@@ -119,8 +120,14 @@ def test_report_stats(species_six_members):
 
 
 def test_add_member(species_six_members):
+
+    new_member = Individual("Mock Genome")
+
+    assert new_member.assigned_specie is None
     assert len(species_six_members.members) == 6
-    species_six_members.add_member("Mock Individual")
+    species_six_members.add_member(new_member)
+
+    assert new_member.assigned_specie == species_six_members.id
     assert len(species_six_members.members) == 7
 
 

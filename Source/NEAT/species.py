@@ -83,6 +83,7 @@ class Species(object):
         self.extinction_generation = None
         self.champion = None
 
+        representative.assigned_specie = self.id
         self.members = [representative]  # Should never be empty!
         self.representative = representative  # This will be an instance of the Individual class. Must not be None
         self.adjusted_fitness_sum = 0
@@ -122,6 +123,7 @@ class Species(object):
             self.extinction_generation = self.generation_created + self.generations_existed
 
     def add_member(self, _new_individual):
+        _new_individual.assigned_specie = self.id
         self.members.append(_new_individual)
 
     def select_offspring(self, _num_assigned_offspring):

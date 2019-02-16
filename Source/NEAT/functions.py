@@ -105,10 +105,11 @@ def sort_into_species(all_species, _individuals, _current_generation):
 
     for individual in _individuals:
         found_species_match = False
-        for single_species in all_species:
+        for single_species in all_species.values():
             if compare_genome_compatibility(single_species.get_representative_genome(), individual.genome):
                 single_species.add_member(individual)
                 found_species_match = True
                 break
         if not found_species_match:
-            all_species.append(Species(_current_generation, individual))
+            new_species = Species(_current_generation, individual)
+            all_species[new_species.id] = new_species

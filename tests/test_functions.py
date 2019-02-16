@@ -32,15 +32,15 @@ def test_sort_into_species(genome_four_nodes, genome_six_nodes):
     s1 = species.Species(0, i_four_1)
 
     individuals = [i_four_1, i_four_2, i_four_3, i_six_1, i_six_2]
-    all_species = [s1]
+    all_species = {s1.id: s1}
 
     functions.sort_into_species(all_species, individuals, 1)
 
     assert len(all_species) == 2
-    assert all_species[1].generation_created == 1
-    assert all_species[1].representative is i_six_1
-    assert len(all_species[0].members) == 4
-    assert len(all_species[1].members) == 2
+    assert all_species[2].generation_created == 1
+    assert all_species[2].representative is i_six_1
+    assert len(all_species[1].members) == 4
+    assert len(all_species[2].members) == 2
 
 
 def test_create_initial_individual():

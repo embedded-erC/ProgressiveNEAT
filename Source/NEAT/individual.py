@@ -23,6 +23,7 @@ class Individual(object):
         self.id = Individual.num_created
         self.genome = genome
         self.fitness = 0
+        self.assigned_specie = None
 
     def evaluate(self, inputs):
         """

@@ -376,7 +376,7 @@ def species_one_member():
     i1 = individual.Individual("Mock Genome")
     i1.fitness = 1
 
-    s1 = species.Species(0, "Mock Representative")
+    s1 = species.Species(0, i1)
     s1.members = [i1]
     return s1
 
@@ -395,7 +395,7 @@ def species_five_members():
     i4.fitness = 80
     i5.fitness = 5
 
-    s1 = species.Species(0, "Mock Representative")
+    s1 = species.Species(0, i1)
     s1.members = [i1, i2, i3, i4, i5]
     return s1
 
@@ -416,7 +416,7 @@ def species_six_members():
     i5.fitness = 5
     i6.fitness = -30.0
 
-    s1 = species.Species(0, "Mock Representative")
+    s1 = species.Species(0, i1)
     s1.members = [i1, i2, i3, i4, i5, i6]
     return s1
 

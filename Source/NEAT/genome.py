@@ -102,16 +102,18 @@ class Genome(object):
         :param current_unused_innov:
         :return:
         """
-        new_connection = random.choice(self._find_eligible_connections())
-        connection_innov = 0
-        if new_connection in innovs_this_generation:
-            connection_innov = innovs_this_generation[new_connection]
-        else:
-            connection_innov = current_unused_innov
-            current_unused_innov += 1
-            innovs_this_generation[new_connection] = connection_innov
-        self.connection_genes[connection_innov] = ConnectionGene(new_connection[0], new_connection[1],
-                                                                 random.gauss(0, 1), innov_num=connection_innov)
+        eligible_connections = self._find_eligible_connections()
+        if eligible_connections:
+            new_connection = random.choice(eligible_connections)
+            connection_innov = 0
+            if new_connection in innovs_this_generation:
+                connection_innov = innovs_this_generation[new_connection]
+            else:
+                connection_innov = current_unused_innov
+                current_unused_innov += 1
+                innovs_this_generation[new_connection] = connection_innov
+            self.connection_genes[connection_innov] = ConnectionGene(new_connection[0], new_connection[1],
+                                                                     random.gauss(0, 1), innov_num=connection_innov)
         return current_unused_innov
 
     def assemble_topology(self):
