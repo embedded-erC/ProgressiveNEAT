@@ -10,6 +10,7 @@
     [General]
     population size = 150
     transfer function power = -4.9
+    bias node = yes
 
     [Speciation]
     # compatibility_distance = c1(Excess_genes / Num_genes) + c2(Disjoint_genes / Num_genes) + c3 * AvgWtDiffMatching
@@ -47,13 +48,15 @@ import configparser
 
 config = configparser.ConfigParser()
 # config.read('C:\\Users\\erC\\PycharmProjects\\ProgressiveNEAT\\config')  # TODO: Need to define a testing config
-config.read('/home/erc/PycharmProjects/ProgressiveNEAT/config')
+# config.read('/home/erc/PycharmProjects/ProgressiveNEAT/config')
+config.read('/home/erc/PycharmProjects/ProgressiveNEAT/pytest_config')
 
 try:
 
     # General
     kPop_size = int(config['General']['population size'])
     kSigmoid_power = float(config['General']['transfer function power'])
+    kBias_node = config['General'].getboolean('bias node')
 
     # Speciation
     kCompat_threshold = float(config['Speciation']['compatibility threshold'])

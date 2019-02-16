@@ -41,3 +41,31 @@ def test_sort_into_species(genome_four_nodes, genome_six_nodes):
     assert all_species[1].representative is i_six_1
     assert len(all_species[0].members) == 4
     assert len(all_species[1].members) == 2
+
+
+def test_create_initial_individual():
+
+    # Note this test assumes bias nodes are set to 'no' in the testing config
+    i1 = functions.create_initial_individual(2, 2)
+    i2 = functions.create_initial_individual(10, 10)
+
+    i1_conn_gene_set = set()
+    i2_conn_gene_set = set()
+
+    assert i1.genome.get_greatest_innov() == 8
+    assert len(i1.genome.node_genes) == 4
+    assert len([node for node in i1.genome.node_genes.values() if node.node_type == 'input']) == 2
+    assert len([node for node in i1.genome.node_genes.values() if node.node_type == 'output']) == 2
+    assert len(i1.genome.connection_genes) == 4
+    # Show all connections are unique:
+    [i1_conn_gene_set.add((conn.in_node, conn.out_node)) for conn in i1.genome.connection_genes.values()]
+    assert len(i1_conn_gene_set) == 4
+
+    assert i2.genome.get_greatest_innov() == 120
+    assert len(i2.genome.node_genes) == 20
+    assert len([node for node in i2.genome.node_genes.values() if node.node_type == 'input']) == 10
+    assert len([node for node in i2.genome.node_genes.values() if node.node_type == 'output']) == 10
+    assert len(i2.genome.connection_genes) == 100
+    # Show all connections are unique:
+    [i2_conn_gene_set.add((conn.in_node, conn.out_node)) for conn in i2.genome.connection_genes.values()]
+    assert len(i2_conn_gene_set) == 100

@@ -2,6 +2,8 @@
     Module-level docstring start
 """
 
+from Source.constants import *
+
 
 class Individual(object):
     """
@@ -24,8 +26,13 @@ class Individual(object):
 
     def evaluate(self, inputs):
         """
-        In
         :param inputs:
         :return:
         """
+        if kBias_node:
+            inputs = [1.0] + inputs
         return self.genome.evaluate(inputs)
+
+    def frame(self, inputs):
+        # In certain applications a frame is a more intuitive concept than evaluate
+        return self.evaluate(inputs)

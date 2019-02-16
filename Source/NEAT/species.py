@@ -124,7 +124,7 @@ class Species(object):
     def add_member(self, _new_individual):
         self.members.append(_new_individual)
 
-    def select_offspring(self, num_assigned_offspring):
+    def select_offspring(self, _num_assigned_offspring):
         """
         Thinking this can work as follows:
         1. Based on this species' relative fitness, it will be assigned a number of offspring
@@ -140,8 +140,8 @@ class Species(object):
             if self.champion:
                 all_offspring.append(self.champion)
             random.shuffle(self.members)
-            all_offspring += self.members[:round(kMutation_only_rate * num_assigned_offspring)]
-            while len(all_offspring) < num_assigned_offspring:
+            all_offspring += self.members[:round(kMutation_only_rate * _num_assigned_offspring)]
+            while len(all_offspring) < _num_assigned_offspring:
                 parents = random.sample(self.members, k=2)
                 all_offspring.append(Species.mate(parents[0], parents[1]))
         return all_offspring
