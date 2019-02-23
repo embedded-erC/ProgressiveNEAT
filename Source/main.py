@@ -18,38 +18,44 @@ class NEATSession(object):
         self.functions = Functions(config=self.config)
 
         self.generation = 0
-        self.population = [self.functions.create_initial_individual(inputs, outputs) for individual in range(self.config['kPop_size'])]
-        self.species = [species.Species(self.generation, self.population[0], config=self.config)]  # TODO: Make this a dict w/ species ID as the key?
+        self.population = [self.functions.create_initial_individual(inputs, outputs) for individual in range(kPop_size)]
         self.current_unused_innov = self.population[0].genome.get_greatest_innov() + 1
         self.session_stats = visualization.Visualization()
 
+        first_species = species.Species(self.generation, self.population[0], config=self.config)
+        self.species = {first_species.id: first_species}
+
         for individual in self.population[1:]:
-            self.species[0].add_member(individual)
+            self.species[first_species.id].add_member(individual)
 
     def _choose_species_representatives(self):
-        for specie in self.species:
+        for specie in self.species.values():
             specie.choose_representative()
 
     def _gather_offspring(self):
-        total_population_fitness = sum([specie.adjusted_fitness_sum for specie in self.species])
-
+        total_population_fitness = sum([specie.adjusted_fitness_sum for specie in self.species.values()])
 
     def _gather_visualization_data(self):
         self.session_stats.set_generation(self.generation)
-        for specie in self.species:
+        for specie in self.species.values():
             self.session_stats.gather_generational_stats(specie.id, specie.report_stats())
 
     def _mutate_species(self, _innovs_this_generation):
-        for specie in self.species:
+        for specie in self.species.values():
             self.current_unused_innov = specie.mutate(_innovs_this_generation, self.current_unused_innov)
 
     def _update_all_species(self):
-        for specie in self.species:
+        for specie in self.species.values():
             specie.update_species()
 
     def get_individuals(self):
+        """
+        When individuals are given to the outside manager, strip them from their species associations.
+        Reassign them when they return.
+        :return:
+        """
         self.population = []
-        [self.population.extend(specie.get_members()) for specie in self.species]
+        [self.population.extend(specie.get_members()) for specie in self.species.values()]
         return self.population
 
     def collect_individuals(self, _population):
@@ -68,6 +74,10 @@ class NEATSession(object):
         self.functions.sort_into_species(self.species, self.population, self.generation)
         self._choose_species_representatives()
         self._mutate_species(innovs_this_generation)
+
+        # TODO: Move all this to functions and have no methods that are not required for the external interface
+        # TODO: Get tests in place for all of those functions.
+
 
         # TODO: Ok, slight problem here. When i send out the individuals they are removed from their species association
         # TODO: What needs to happen is: Sort_into_species needs to include code to assign a species # to each individual.
@@ -147,8 +157,9 @@ user_paths = os.environ['PYTHONPATH'].split(os.pathsep)
 print(user_paths)
 test = NEATSession(2, 2)
 test_men = test.get_individuals()
-print(len(test_men), len(test.population), len(test.species[0].members))
+print(len(test_men), len(test.population), len(test.species[1].members))
 for man in test_men:
     man.fitness = random.random() * 10000
+
 test.advance_generation()
 

@@ -51,10 +51,11 @@ def get_config():
     config = configparser.ConfigParser()
     # config.read('C:\\Users\\erC\\PycharmProjects\\ProgressiveNEAT\\config')  # TODO: Need to define a testing config
     # config.read('/home/erc/PycharmProjects/ProgressiveNEAT/config')
-    config.read('/home/erc/PycharmProjects/ProgressiveNEAT/pytest_config')
+    config.read('C:\\Users\\erC\\PycharmProjects\\ProgressiveNEAT\\pytest_config')
+    # config.read('/home/erc/PycharmProjects/ProgressiveNEAT/pytest_config')
     config_dict = dict()
-    try:
 
+    try:
         # General
         config_dict['kPop_size'] = int(config['General']['population size'])
         config_dict['kSigmoid_power'] = float(config['General']['transfer function power'])
