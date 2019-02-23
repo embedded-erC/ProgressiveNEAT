@@ -18,7 +18,7 @@ class NEATSession(object):
         self.functions = Functions(config=self.config)
 
         self.generation = 0
-        self.population = [self.functions.create_initial_individual(inputs, outputs) for individual in range(kPop_size)]
+        self.population = [self.functions.create_initial_individual(inputs, outputs) for individual in range(self.config['kPop_size'])]
         self.current_unused_innov = self.population[0].genome.get_greatest_innov() + 1
         self.session_stats = visualization.Visualization()
 

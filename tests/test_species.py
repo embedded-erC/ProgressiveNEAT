@@ -121,7 +121,7 @@ def test_report_stats(species_six_members):
 
 def test_add_member(species_six_members):
 
-    new_member = Individual("Mock Genome")
+    new_member = Individual("Mock Genome", config=get_config())
 
     assert new_member.assigned_specie is None
     assert len(species_six_members.members) == 6

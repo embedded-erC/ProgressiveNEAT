@@ -26,6 +26,7 @@ class Genome(NEATConfigBase):
             1. Report the number of Node genes (delineated by in/out/hidden type)
             2, Report the number of Connection genes
     """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.connection_genes = dict()
@@ -75,8 +76,9 @@ class Genome(NEATConfigBase):
                                                                        innov_num=new_inbound_conn_innov,
                                                                        config=self.config)
         self.connection_genes[new_outbound_conn_innov] = ConnectionGene(new_node_innov, conn_to_break.out_node,
-                                                                 conn_to_break.conn_weight,
-                                                                  innov_num=new_outbound_conn_innov)
+                                                                        conn_to_break.conn_weight,
+                                                                        innov_num=new_outbound_conn_innov,
+                                                                        config=self.config)
         return current_unused_innov
 
     def _find_eligible_connections(self):
@@ -88,7 +90,7 @@ class Genome(NEATConfigBase):
         for first_node in self.node_genes.values():
             for second_node in self.node_genes.values():
                 if second_node.layer >= first_node.layer and \
-                    (first_node.innov_num, second_node.innov_num) not in existing_connections and \
+                        (first_node.innov_num, second_node.innov_num) not in existing_connections and \
                         first_node.node_type != 'output' and \
                         second_node.node_type != 'input':
                     candidate_connections.append((first_node.innov_num, second_node.innov_num))
@@ -220,6 +222,7 @@ class Gene(NEATConfigBase):
             1. Maintain an innovation number
         Data Reporting/Visualization Responsibilities:
     """
+
     def __init__(self, innov_num, **kwargs):
         super().__init__(**kwargs)
         self.innov_num = innov_num
@@ -238,6 +241,7 @@ class ConnectionGene(Gene):
             7. Have a mechanism to change the enable/disable bit
         Data Reporting/Visualization Responsibilities:
     """
+
     def __init__(self, in_node, out_node, conn_weight, **kwargs):
         super().__init__(**kwargs)
         self.in_node = in_node
@@ -267,6 +271,7 @@ class NodeGene(Gene):
         Data Reporting/Visualization Responsibilities:
             1. Track node evaluations (transfer function firings)
     """
+
     def __init__(self, node_type='hidden', **kwargs):
         super().__init__(**kwargs)
         self.node_type = node_type
@@ -275,7 +280,7 @@ class NodeGene(Gene):
         self.num_evaluations = 0
         self.outbound_connections = []
         self.outbound_weights = []
-        self.inbound_connections = []   # TODO: Can I use this for anything besides testing support?
+        self.inbound_connections = []  # TODO: Can I use this for anything besides testing support?
         self.inbound_activations = []
         self.layer = 1 if self.node_type == 'input' else -1
         self.is_isolated = False
