@@ -4,12 +4,12 @@
 
 import copy
 import random
-from Source.constants import *
 from Source.NEAT.genome import Genome
 from Source.NEAT.individual import Individual
+from Source.NEAT.NEATConfigBase import NEATConfigBase
 
 
-class Species(object):
+class Species(NEATConfigBase):
     """
         Class Docstring
 
@@ -38,43 +38,8 @@ class Species(object):
     """
     id = 0
 
-    @staticmethod
-    def mate(_mother, _father):
-        """
-        This might take other genomes as arguments and be static. That way I could just use the Species class
-        for intraspecies mating
-
-        This should return an new individual which will go into the pool of individuals that will be ready to run
-        the next sequence of attempts at the goal.
-        :param _mother:
-        :param _father:
-        :return:
-        """
-        offspring_genome = Genome()
-        if _father.fitness > _mother.fitness:
-            # Mother always has the higher fitness
-            _mother, _father = _father, _mother
-
-        for node_gene_id in _mother.genome.node_genes:
-            if node_gene_id in _father.genome.node_genes:
-                offspring_genome.node_genes[node_gene_id] = copy.deepcopy(
-                    random.choice([_mother.genome.node_genes[node_gene_id],
-                                   _father.genome.node_genes[node_gene_id]]))
-            else:
-                offspring_genome.node_genes[node_gene_id] = copy.deepcopy(_mother.genome.node_genes[node_gene_id])
-
-        for conn_gene_id in _mother.genome.connection_genes:
-            if conn_gene_id in _father.genome.connection_genes:
-                offspring_genome.connection_genes[conn_gene_id] = copy.deepcopy(
-                    random.choice([_mother.genome.connection_genes[conn_gene_id],
-                                   _father.genome.connection_genes[conn_gene_id]]))
-            else:
-                offspring_genome.connection_genes[conn_gene_id] = copy.deepcopy(
-                    _mother.genome.connection_genes[conn_gene_id])
-        return Individual(offspring_genome)
-
-    def __init__(self, generation_created, representative):
-        super().__init__()
+    def __init__(self, generation_created, representative, **kwargs):
+        super().__init__(**kwargs)
 
         # Data reporting fields:
         Species.id += 1
@@ -92,7 +57,7 @@ class Species(object):
 
     def _eliminate_lowest_performers(self):
         self._sort_fitness_ascending()
-        self.members = self.members[round(len(self.members) * (1 - kReproduction_pct)):]
+        self.members = self.members[round(len(self.members) * (1 - self.kReproduction_pct)):]
 
     def _save_champion(self):
         self.champion = copy.deepcopy(self.members[-1]) if len(self.members) > 5 else None
@@ -118,7 +83,7 @@ class Species(object):
             self.num_generations_at_peak = 1
         else:
             self.num_generations_at_peak += 1
-        if self.num_generations_at_peak >= kExtinction_generation and not self.extinction_generation:
+        if self.num_generations_at_peak >= self.kExtinction_generation and not self.extinction_generation:
             self.extinction_generation = self.generation_created + self.generations_existed
 
     def add_member(self, _new_individual):
@@ -134,26 +99,60 @@ class Species(object):
         """
         all_offspring = []
         if len(self.members) == 1:
-            for ii in range(kMin_new_species_size):
+            for ii in range(self.kMin_new_species_size):
                 all_offspring.append(copy.deepcopy(self.members[0]))
         else:
             if self.champion:
                 all_offspring.append(self.champion)
             random.shuffle(self.members)
-            all_offspring += self.members[:round(kMutation_only_rate * _num_assigned_offspring)]
+            all_offspring += self.members[:round(self.kMutation_only_rate * _num_assigned_offspring)]
             while len(all_offspring) < _num_assigned_offspring:
                 parents = random.sample(self.members, k=2)
-                all_offspring.append(Species.mate(parents[0], parents[1]))
+                all_offspring.append(self.mate(parents[0], parents[1]))
         return all_offspring
+
+    def mate(self, _mother, _father):
+        """
+        This might take other genomes as arguments and be static. That way I could just use the Species class
+        for intraspecies mating
+
+        This should return an new individual which will go into the pool of individuals that will be ready to run
+        the next sequence of attempts at the goal.
+        :param _mother:
+        :param _father:
+        :return:
+        """
+        offspring_genome = Genome(config=self.config)
+        if _father.fitness > _mother.fitness:
+            # Mother always has the higher fitness
+            _mother, _father = _father, _mother
+
+        for node_gene_id in _mother.genome.node_genes:
+            if node_gene_id in _father.genome.node_genes:
+                offspring_genome.node_genes[node_gene_id] = copy.deepcopy(
+                    random.choice([_mother.genome.node_genes[node_gene_id],
+                                   _father.genome.node_genes[node_gene_id]]))
+            else:
+                offspring_genome.node_genes[node_gene_id] = copy.deepcopy(_mother.genome.node_genes[node_gene_id])
+
+        for conn_gene_id in _mother.genome.connection_genes:
+            if conn_gene_id in _father.genome.connection_genes:
+                offspring_genome.connection_genes[conn_gene_id] = copy.deepcopy(
+                    random.choice([_mother.genome.connection_genes[conn_gene_id],
+                                   _father.genome.connection_genes[conn_gene_id]]))
+            else:
+                offspring_genome.connection_genes[conn_gene_id] = copy.deepcopy(
+                    _mother.genome.connection_genes[conn_gene_id])
+        return Individual(offspring_genome, config=self.config)
 
     def mutate(self, innovs_this_generation, current_unused_innov):
         self._eliminate_lowest_performers()
         for individual in self.members:
-            if random.random() < kConn_mut_rate:
+            if random.random() < self.kConn_mut_rate:
                 individual.genome.mutate_connections()
-            if random.random() < kNew_node_rate:
+            if random.random() < self.kNew_node_rate:
                 current_unused_innov = individual.genome.add_node(innovs_this_generation, current_unused_innov)
-            if random.random() < kNew_conn_rate:
+            if random.random() < self.kNew_conn_rate:
                 current_unused_innov = individual.genome.add_connection(innovs_this_generation, current_unused_innov)
         return current_unused_innov
 

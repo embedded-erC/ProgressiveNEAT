@@ -1,9 +1,9 @@
 """
 Module-level docstring stub
 """
-from Source.constants import *
 from Source.NEAT.individual import Individual
 from Source.NEAT.species import Species
+from Source.constants import get_config
 
 
 def test_sort_ascending_fitness(species_six_members):
@@ -77,7 +77,7 @@ def test_update_generations_and_fitness_peak(species_six_members):
     assert species_six_members.peak_fitness > 0
     assert species_six_members.generations_existed == 100
     assert species_six_members.num_generations_at_peak == 90
-    assert species_six_members.extinction_generation == kExtinction_generation + 10  # b/c we set a new fitness record @ generation 10
+    assert species_six_members.extinction_generation == species_six_members.kExtinction_generation + 10  # b/c we set a new fitness record @ generation 10
 
 
 def test_choose_representative(species_six_members):
@@ -133,26 +133,28 @@ def test_eliminate_lowest_performers(species_six_members):
 
 
 def test_mate(genome_four_nodes, genome_five_nodes):
-    i1 = Individual(genome_four_nodes)
-    i2 = Individual(genome_five_nodes)
+    i1 = Individual(genome_four_nodes, config=get_config())
+    i2 = Individual(genome_five_nodes, config=get_config())
 
     i1.fitness = 10
     i2.fitness = 5
 
-    offspring = Species.mate(i1, i2)
+    species_object = Species(0, i1, config=get_config())
+    offspring = species_object.mate(i1, i2)
     assert offspring.genome.get_genome_size() == i1.genome.get_genome_size()
     for innov_num in range(1, 9):
         assert innov_num in offspring.genome.get_all_gene_ids()
 
 
 def test_mate_inverted_fitness(genome_four_nodes, genome_five_nodes):
-    i1 = Individual(genome_four_nodes)
-    i2 = Individual(genome_five_nodes)
+    i1 = Individual(genome_four_nodes, config=get_config())
+    i2 = Individual(genome_five_nodes, config=get_config())
 
     i1.fitness = 5
     i2.fitness = 10
 
-    offspring = Species.mate(i1, i2)
+    species_object = Species(0, i1, config=get_config())
+    offspring = species_object.mate(i1, i2)
     assert offspring.genome.get_genome_size() == i2.genome.get_genome_size()
     for innov_num in range(1, 12):
         assert innov_num in offspring.genome.get_all_gene_ids()
@@ -161,7 +163,7 @@ def test_mate_inverted_fitness(genome_four_nodes, genome_five_nodes):
 def test_select_one_offspring(species_one_member):
     num_assigned_offspring = 10
     offspring = species_one_member.select_offspring(num_assigned_offspring)
-    assert len(offspring) == kMin_new_species_size
+    assert len(offspring) == species_one_member.kMin_new_species_size
     assert len([individual for individual in offspring if individual.fitness]) == 5
 
 

@@ -5,11 +5,10 @@
 from collections import OrderedDict
 from math import exp
 import random
+from Source.NEAT.NEATConfigBase import NEATConfigBase
 
-from Source.constants import *
 
-
-class Genome(object):
+class Genome(NEATConfigBase):
     """
         Class Docstring
 
@@ -27,15 +26,15 @@ class Genome(object):
             1. Report the number of Node genes (delineated by in/out/hidden type)
             2, Report the number of Connection genes
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.connection_genes = dict()
         self.node_genes = OrderedDict()
 
     def mutate_connections(self):
-        weight_change = random.uniform(-kMax_conn_change, kMax_conn_change)
+        weight_change = random.uniform(-self.kMax_conn_change, self.kMax_conn_change)
         for connection in self.connection_genes.values():
-            if random.random() < kWeight_adjusted_rate:
+            if random.random() < self.kWeight_adjusted_rate:
                 connection.conn_weight += weight_change
             else:
                 connection.conn_weight = random.gauss(0, 1)
@@ -71,12 +70,14 @@ class Genome(object):
         new_outbound_conn_innov = new_node_innov + 2
 
         # We've got the innovation numbers. Create the new genes:
-        self.node_genes[new_node_innov] = NodeGene(innov_num=new_node_innov)
+        self.node_genes[new_node_innov] = NodeGene(innov_num=new_node_innov, config=self.config)
         self.connection_genes[new_inbound_conn_innov] = ConnectionGene(conn_to_break.in_node, new_node_innov, 1.0,
-                                                                       innov_num=new_inbound_conn_innov)
+                                                                       innov_num=new_inbound_conn_innov,
+                                                                       config=self.config)
         self.connection_genes[new_outbound_conn_innov] = ConnectionGene(new_node_innov, conn_to_break.out_node,
                                                                         conn_to_break.conn_weight,
-                                                                        innov_num=new_outbound_conn_innov)
+                                                                        innov_num=new_outbound_conn_innov,
+                                                                        config=self.config)
         return current_unused_innov
 
     def _find_eligible_connections(self):
@@ -111,7 +112,8 @@ class Genome(object):
             current_unused_innov += 1
             innovs_this_generation[new_connection] = connection_innov
         self.connection_genes[connection_innov] = ConnectionGene(new_connection[0], new_connection[1],
-                                                                 random.gauss(0, 1), innov_num=connection_innov)
+                                                                 random.gauss(0, 1), innov_num=connection_innov,
+                                                                 config=self.config)
         return current_unused_innov
 
     def assemble_topology(self):
@@ -209,7 +211,7 @@ class Genome(object):
         return outputs
 
 
-class Gene(object):
+class Gene(NEATConfigBase):
     """
         Class Docstring
 
@@ -309,7 +311,7 @@ class NodeGene(Gene):
         if self.node_type == 'input':
             return sum(self.inbound_activations)
         elif not self.is_isolated:
-            return 1.0 / (1.0 + exp(kSigmoid_power * sum(self.inbound_activations)))
+            return 1.0 / (1.0 + exp(self.kSigmoid_power * sum(self.inbound_activations)))
         else:
             return 0
 

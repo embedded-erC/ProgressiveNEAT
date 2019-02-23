@@ -3,20 +3,23 @@
 """
 
 import os
-import Source.NEAT.functions as functions
 import Source.NEAT.genome as genome
-# import Source.NEAT.individual as individual
 import Source.NEAT.species as species
 import Source.Visualization.visualization as visualization
-from Source.constants import *
+from Source.constants import get_config
+from Source.NEAT.functions import Functions
 
 
 class NEATSession(object):
     def __init__(self, inputs, outputs):
         super().__init__()
+
+        self.config = get_config()
+        self.functions = Functions(config=self.config)
+
         self.generation = 0
-        self.population = [functions.create_initial_individual(inputs, outputs) for individual in range(kPop_size)]
-        self.species = [species.Species(self.generation, self.population[0])]  # TODO: Make this a dict w/ species ID as the key?
+        self.population = [self.functions.create_initial_individual(inputs, outputs) for individual in range(self.config['kPop_size'])]
+        self.species = [species.Species(self.generation, self.population[0], config=self.config)]  # TODO: Make this a dict w/ species ID as the key?
         self.current_unused_innov = self.population[0].genome.get_greatest_innov() + 1
         self.session_stats = visualization.Visualization()
 
@@ -62,7 +65,7 @@ class NEATSession(object):
 
         self._update_all_species()
         self._gather_visualization_data()
-        functions.sort_into_species(self.species, self.population, self.generation)
+        self.functions.sort_into_species(self.species, self.population, self.generation)
         self._choose_species_representatives()
         self._mutate_species(innovs_this_generation)
 
@@ -147,4 +150,5 @@ test_men = test.get_individuals()
 print(len(test_men), len(test.population), len(test.species[0].members))
 for man in test_men:
     man.fitness = random.random() * 10000
+test.advance_generation()
 

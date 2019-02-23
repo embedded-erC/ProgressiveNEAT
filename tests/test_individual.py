@@ -3,11 +3,12 @@ Module docstring stub
 """
 
 import Source.NEAT.individual as individual
+from Source.constants import get_config
 
 
 def test_network_evaluation(genome_recursive_two_outputs):
 
-    i1 = individual.Individual(genome_recursive_two_outputs)
+    i1 = individual.Individual(genome_recursive_two_outputs, config=get_config())
     genome_recursive_two_outputs.assemble_topology()
 
     output = i1.evaluate([1.0, -1.0])
@@ -36,7 +37,7 @@ def test_network_evaluation_isolated_node(genome_recursive_two_outputs):
     # Isolate the recursive node
     genome_recursive_two_outputs.connection_genes[12].enabled = False
 
-    i1 = individual.Individual(genome_recursive_two_outputs)
+    i1 = individual.Individual(genome_recursive_two_outputs, config=get_config())
     genome_recursive_two_outputs.assemble_topology()
 
     output = i1.evaluate([1.0, -1.0])

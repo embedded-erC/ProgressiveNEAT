@@ -152,7 +152,7 @@ def test_mutate_connections(genome_simple_shuffle):
         genome_simple_shuffle.mutate_connections()
         post_mutate = [conn.conn_weight for conn in genome_simple_shuffle.connection_genes.values()]
         for pre, post in zip(pre_mutate, post_mutate):
-            if pre != post and abs(pre - post) < kMax_conn_change:
+            if pre != post and abs(pre - post) < genome_simple_shuffle.kMax_conn_change:
                 matched += 1
     assert 9000 < matched < 9400
 

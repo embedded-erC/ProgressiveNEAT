@@ -46,43 +46,46 @@
 
 import configparser
 
-config = configparser.ConfigParser()
-# config.read('C:\\Users\\erC\\PycharmProjects\\ProgressiveNEAT\\config')  # TODO: Need to define a testing config
-# config.read('/home/erc/PycharmProjects/ProgressiveNEAT/config')
-config.read('/home/erc/PycharmProjects/ProgressiveNEAT/pytest_config')
 
-try:
+def get_config():
+    config = configparser.ConfigParser()
+    # config.read('C:\\Users\\erC\\PycharmProjects\\ProgressiveNEAT\\config')  # TODO: Need to define a testing config
+    # config.read('/home/erc/PycharmProjects/ProgressiveNEAT/config')
+    config.read('/home/erc/PycharmProjects/ProgressiveNEAT/pytest_config')
+    config_dict = dict()
+    try:
 
-    # General
-    kPop_size = int(config['General']['population size'])
-    kSigmoid_power = float(config['General']['transfer function power'])
-    kBias_node = config['General'].getboolean('bias node')
+        # General
+        config_dict['kPop_size'] = int(config['General']['population size'])
+        config_dict['kSigmoid_power'] = float(config['General']['transfer function power'])
+        config_dict['kBias_node'] = config['General'].getboolean('bias node')
 
-    # Speciation
-    kCompat_threshold = float(config['Speciation']['compatibility threshold'])
-    kExtinction_generation = int(config['Speciation']['extinction generation'])
-    kCoeff_excess = float(config['Speciation']['c1'])
-    kCoeff_disjoint = float(config['Speciation']['c2'])
-    kCoeff_wt_diff = float(config['Speciation']['c3'])
-    kGene_threshold = int(config['Speciation']['gene counting threshold'])
-    kReproduction_pct = float(config['Speciation']['percentage allowed to reproduce'])
-    kMin_new_species_size = int(config['Speciation']['minimum new species size'])
+        # Speciation
+        config_dict['kCompat_threshold'] = float(config['Speciation']['compatibility threshold'])
+        config_dict['kExtinction_generation'] = int(config['Speciation']['extinction generation'])
+        config_dict['kCoeff_excess'] = float(config['Speciation']['c1'])
+        config_dict['kCoeff_disjoint'] = float(config['Speciation']['c2'])
+        config_dict['kCoeff_wt_diff'] = float(config['Speciation']['c3'])
+        config_dict['kGene_threshold'] = int(config['Speciation']['gene counting threshold'])
+        config_dict['kReproduction_pct'] = float(config['Speciation']['percentage allowed to reproduce'])
+        config_dict['kMin_new_species_size'] = int(config['Speciation']['minimum new species size'])
 
-    # Mutation
-    kConn_mut_rate = float(config['Mutation']['connection mutation chance'])
-    kMax_conn_change = float(config['Mutation']['max connection change'])  # TODO: What should this range be?
-    kWeight_adjusted_rate = float(config['Mutation']['uniform weight change chance'])
-    kRandom_weight_rate = 1 - kWeight_adjusted_rate
-    kNew_conn_rate = float(config['Mutation']['new connection chance'])
-    kNew_node_rate = float(config['Mutation']['new node chance'])
+        # Mutation
+        config_dict['kConn_mut_rate'] = float(config['Mutation']['connection mutation chance'])
+        config_dict['kMax_conn_change'] = float(config['Mutation']['max connection change'])  # TODO: What should this range be?
+        config_dict['kWeight_adjusted_rate'] = float(config['Mutation']['uniform weight change chance'])
+        config_dict['kRandom_weight_rate'] = 1 - config_dict['kWeight_adjusted_rate']
+        config_dict['kNew_conn_rate'] = float(config['Mutation']['new connection chance'])
+        config_dict['kNew_node_rate'] = float(config['Mutation']['new node chance'])
 
-    # Mating
-    kConn_still_disabled_rate = float(config['Mating']['gene disabled if disabled in a parent chance'])
-    kMutation_only_rate = float(config['Mating']['percent offspring from mutation only'])
-    kInterspecies_rate = float(config['Mating']['interspecies mating rate'])
+        # Mating
+        config_dict['kConn_still_disabled_rate'] = float(config['Mating']['gene disabled if disabled in a parent chance'])
+        config_dict['kMutation_only_rate'] = float(config['Mating']['percent offspring from mutation only'])
+        config_dict['kInterspecies_rate'] = float(config['Mating']['interspecies mating rate'])
 
-except (ValueError, KeyError) as err:
-    print("Invalid Parameters! Check your NEAT config settings. Aborting.")
-    quit(err)
+    except (ValueError, KeyError) as err:
+        print("Invalid Parameters! Check your NEAT config settings. Aborting.")
+        quit(err)
 
-# TODO: Also get some tests up for the config
+    return config_dict
+    # TODO: Also get some tests up for the config

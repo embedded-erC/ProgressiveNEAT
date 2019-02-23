@@ -1,11 +1,10 @@
 """
     Module-level docstring start
 """
+from Source.NEAT.NEATConfigBase import NEATConfigBase
 
-from Source.constants import *
 
-
-class Individual(object):
+class Individual(NEATConfigBase):
     """
         Class Docstring
 
@@ -17,8 +16,8 @@ class Individual(object):
     """
     num_created = 0
 
-    def __init__(self, genome):
-        super().__init__()
+    def __init__(self, genome, **kwargs):
+        super().__init__(**kwargs)
         Individual.num_created += 1
         self.id = Individual.num_created
         self.genome = genome
@@ -29,7 +28,7 @@ class Individual(object):
         :param inputs:
         :return:
         """
-        if kBias_node:
+        if self.kBias_node:
             inputs = [1.0] + inputs
         return self.genome.evaluate(inputs)
 
