@@ -11,10 +11,10 @@ from Source.NEAT.functions import Functions
 
 
 class NEATSession(object):
-    def __init__(self, inputs, outputs):
+    def __init__(self, inputs, outputs, _config=None):
         super().__init__()
 
-        self.config = get_config()
+        self.config = get_config() if not _config else _config
         self.functions = Functions(config=self.config)
 
         self.generation = 0
@@ -77,14 +77,6 @@ class NEATSession(object):
 
         # TODO: Move all this to functions and have no methods that are not required for the external interface
         # TODO: Get tests in place for all of those functions.
-
-
-        # TODO: Ok, slight problem here. When i send out the individuals they are removed from their species association
-        # TODO: What needs to happen is: Sort_into_species needs to include code to assign a species # to each individual.
-        # TODO: When individuals are sent out, species get their members cleared - including the representative
-        # TODO: When individuals return with their fitness scores they are placed BACK into their species
-        # TODO: Everything in advance_generation proceeds as normal.
-
 
 
 if __name__ == "__main__":
