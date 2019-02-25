@@ -47,6 +47,7 @@ class Species(NEATConfigBase):
         self.generation_created = generation_created
         self.extinction_generation = None
         self.champion = None
+        self.rank = 0
 
         representative.assigned_specie = self.id
         self.members = [representative]  # Should never be empty!
@@ -111,7 +112,9 @@ class Species(NEATConfigBase):
             while len(all_offspring) < _num_assigned_offspring:
                 parents = random.sample(self.members, k=2)
                 all_offspring.append(self.mate(parents[0], parents[1]))
-        return all_offspring
+
+        self.clear_members(_keep_representative=False)
+        [self.add_member(offspring) for offspring in all_offspring]
 
     def mate(self, _mother, _father):
         """
@@ -139,9 +142,17 @@ class Species(NEATConfigBase):
 
         for conn_gene_id in _mother.genome.connection_genes:
             if conn_gene_id in _father.genome.connection_genes:
-                offspring_genome.connection_genes[conn_gene_id] = copy.deepcopy(
+                new_conn = copy.deepcopy(
                     random.choice([_mother.genome.connection_genes[conn_gene_id],
                                    _father.genome.connection_genes[conn_gene_id]]))
+                if (_mother.genome.connection_genes[conn_gene_id].enabled is False or
+                    _father.genome.connection_genes[conn_gene_id] is False) and \
+                        random.random() < self.kConn_still_disabled_rate:
+                    new_conn.enabled = False
+                else:
+                    new_conn.enabled = True
+                offspring_genome.connection_genes[conn_gene_id] = new_conn
+                # TODO: TEST DISABLED RATE
             else:
                 offspring_genome.connection_genes[conn_gene_id] = copy.deepcopy(
                     _mother.genome.connection_genes[conn_gene_id])

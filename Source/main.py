@@ -2,8 +2,7 @@
     Module-level docstring start
 """
 
-import os
-import Source.NEAT.genome as genome
+import random
 import Source.NEAT.species as species
 import Source.Visualization.visualization as visualization
 from Source.constants import get_config
@@ -22,6 +21,9 @@ class NEATSession(object):
         self.current_unused_innov = self.population[0].genome.get_greatest_innov() + 1
         self.session_stats = visualization.Visualization()
 
+        # TESTING:
+        self.all_innovs = dict()
+
         first_species = species.Species(self.generation, self.population[0], config=self.config)
         self.species = {first_species.id: first_species}
 
@@ -32,8 +34,33 @@ class NEATSession(object):
         for specie in self.species.values():
             specie.choose_representative()
 
-    def _gather_offspring(self):
+    def _eliminate_extinct_species(self):  # TODO: TEST ME
+        extinct_species_keys = [specie.id for specie in self.species.values() if
+                                specie.extinction_generation and specie.rank > 5]
+        for specie in extinct_species_keys:
+            dead_one = self.species.pop(specie)
+            # print("EXTINCTION!!! ", dead_one.adjusted_fitness_sum, dead_one.peak_fitness, dead_one.generations_existed,
+            #       dead_one.rank)
+
+    def _interspecies_mate(self):
+        hybrid_offspring = []
+        if len(self.species) >= 2:
+            for num_hybrid_offspring in range(round(self.config['kInterspecies_rate'] * self.config['kPop_size'])):
+                species1, species2 = random.sample(list(self.species.values()), 2)
+                hybrid_offspring.append(
+                    species1.mate(random.choice(species1.members), random.choice(species2.members)))
+        return hybrid_offspring
+
+    def _mate_and_gather_offspring(self):
         total_population_fitness = sum([specie.adjusted_fitness_sum for specie in self.species.values()])
+        hybrid_offspring = self._interspecies_mate()
+        for specie in self.species.values():
+            num_offspring = round((specie.adjusted_fitness_sum / total_population_fitness) * self.config['kPop_size'])
+            num_offspring = max(5, num_offspring)
+            specie.select_offspring(num_offspring)  # Refreshes each species' members with new offspring
+        for hybrid in hybrid_offspring:
+            lucky_specie = random.choice(list(self.species.values()))
+            lucky_specie.add_member(hybrid)
 
     def _gather_visualization_data(self):
         self.session_stats.set_generation(self.generation)
@@ -43,6 +70,13 @@ class NEATSession(object):
     def _mutate_species(self, _innovs_this_generation):
         for specie in self.species.values():
             self.current_unused_innov = specie.mutate(_innovs_this_generation, self.current_unused_innov)
+
+    def _rank_speices(self):  # TODO: TEST ME
+        species_peak_fitnesses = [(specie.peak_fitness, specie.id) for specie in self.species.values()]
+        for enum_species_fitness in enumerate(sorted(species_peak_fitnesses, reverse=True), start=1):
+            # enum_species_fitness looks like:  (enum_num, (peak_fitness, species.id))
+            # So enum_species_fitness[1][1]] gives you the species ID
+            self.species[enum_species_fitness[1][1]].rank = enum_species_fitness[0]
 
     def _update_all_species(self):
         for specie in self.species.values():
@@ -55,11 +89,19 @@ class NEATSession(object):
         :return:
         """
         self.population = []
-        [self.population.extend(specie.get_members()) for specie in self.species.values()]
+        for specie in self.species.values():
+            self.population.extend(specie.get_members())
+            specie.clear_members(_keep_representative=False)
         return self.population
 
     def collect_individuals(self, _population):
-        self.population = _population
+        """
+        The individuals have returned from fitness evaluations. Place them back into their species.
+        :param _population:
+        :return:
+        """
+        for _individual in _population:
+            self.species[_individual.assigned_specie].add_member(_individual)
 
     def advance_generation(self):
         """
@@ -67,13 +109,18 @@ class NEATSession(object):
         :return:
         """
         self.generation += 1
-        innovs_this_generation = dict()
+
+        # TODO: TESTING
+        # innovs_this_generation = dict()
 
         self._update_all_species()
         self._gather_visualization_data()
-        self.functions.sort_into_species(self.species, self.population, self.generation)
+        self._rank_speices()
+        self._eliminate_extinct_species()
         self._choose_species_representatives()
-        self._mutate_species(innovs_this_generation)
+        self.functions.sort_into_species(self.species, self.population, self.generation)
+        self._mutate_species(self.all_innovs)
+        self._mate_and_gather_offspring()
 
         # TODO: Move all this to functions and have no methods that are not required for the external interface
         # TODO: Get tests in place for all of those functions.
@@ -143,15 +190,3 @@ if __name__ == "__main__":
             6. Build genome topologies in prep for step (3) again.      
                 
     """
-import random
-
-user_paths = os.environ['PYTHONPATH'].split(os.pathsep)
-print(user_paths)
-test = NEATSession(2, 2)
-test_men = test.get_individuals()
-print(len(test_men), len(test.population), len(test.species[1].members))
-for man in test_men:
-    man.fitness = random.random() * 10000
-
-test.advance_generation()
-

@@ -169,9 +169,9 @@ def test_mate_inverted_fitness(genome_four_nodes, genome_five_nodes):
 
 def test_select_one_offspring(species_one_member):
     num_assigned_offspring = 10
-    offspring = species_one_member.select_offspring(num_assigned_offspring)
-    assert len(offspring) == species_one_member.kMin_new_species_size
-    assert len([individual for individual in offspring if individual.fitness]) == 5
+    species_one_member.select_offspring(num_assigned_offspring)
+    assert len(species_one_member.members) == species_one_member.kMin_new_species_size
+    assert len([individual for individual in species_one_member.members if individual.fitness]) == 5
 
 
 def test_select_offspring_no_champion(species_five_members, genome_five_nodes):
@@ -181,9 +181,9 @@ def test_select_offspring_no_champion(species_five_members, genome_five_nodes):
         individual.genome = genome_five_nodes
     species_five_members.update_species()
 
-    offspring = species_five_members.select_offspring(num_assigned_offspring)
-    assert len(offspring) == num_assigned_offspring
-    assert len([individual for individual in offspring if individual.fitness]) == 2
+    species_five_members.select_offspring(num_assigned_offspring)
+    assert len(species_five_members.members) == num_assigned_offspring
+    assert len([individual for individual in species_five_members.members if individual.fitness]) == 2
 
 
 def test_select_offspring_with_champion(species_six_members, genome_five_nodes):
@@ -193,7 +193,7 @@ def test_select_offspring_with_champion(species_six_members, genome_five_nodes):
         individual.genome = genome_five_nodes
     species_six_members.update_species()
 
-    offspring = species_six_members.select_offspring(num_assigned_offspring)
-    assert len(offspring) == num_assigned_offspring
-    assert len([individual for individual in offspring if individual.fitness]) == 3
-    assert species_six_members.champion in offspring
+    species_six_members.select_offspring(num_assigned_offspring)
+    assert len(species_six_members.members) == num_assigned_offspring
+    assert len([individual for individual in species_six_members.members if individual.fitness]) == 3
+    assert species_six_members.champion in species_six_members.members

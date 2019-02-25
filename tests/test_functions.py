@@ -30,10 +30,16 @@ def test_sort_into_species(functions_object, genome_four_nodes, genome_six_nodes
     i_six_1 = individual.Individual(genome_six_nodes, config=get_config())
     i_six_2 = individual.Individual(genome_six_nodes, config=get_config())
 
+    i_four_2.assigned_specie = "Not Assigned"
+    i_six_1.assigned_specie = "Not Assigned"
+
     s1 = species.Species(0, i_four_1, config=get_config())
 
     individuals = [i_four_1, i_four_2, i_four_3, i_six_1, i_six_2]
     all_species = {s1.id: s1}
+
+    assert i_four_2.assigned_specie == "Not Assigned"
+    assert i_six_1.assigned_specie == "Not Assigned"
 
     functions_object.sort_into_species(all_species, individuals, 1)
 
@@ -42,6 +48,8 @@ def test_sort_into_species(functions_object, genome_four_nodes, genome_six_nodes
     assert all_species[2].representative is i_six_1
     assert len(all_species[1].members) == 4
     assert len(all_species[2].members) == 2
+    assert i_four_2.assigned_specie == 1
+    assert i_six_1.assigned_specie == 2
 
 
 def test_create_initial_individual(functions_object):

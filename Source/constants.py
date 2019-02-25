@@ -52,7 +52,8 @@ def get_config():
     # config.read('C:\\Users\\erC\\PycharmProjects\\ProgressiveNEAT\\config')  # TODO: Need to define a testing config
     # config.read('/home/erc/PycharmProjects/ProgressiveNEAT/config')
     # config.read('C:\\Users\\erC\\PycharmProjects\\ProgressiveNEAT\\pytest_config')
-    config.read('/home/erc/PycharmProjects/ProgressiveNEAT/pytest_config')
+    # config.read('/home/erc/PycharmProjects/ProgressiveNEAT/pytest_config')
+    config.read('C:\\Users\\erC\\PycharmProjects\\ProgressiveNEAT\\XORconfig')
     config_dict = dict()
 
     try:

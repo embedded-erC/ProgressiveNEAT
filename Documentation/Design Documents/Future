@@ -44,3 +44,6 @@ Future Ideas:
     a given set of mutation params. I could check the genome size, rate of connection and node generation, complexity
     increase, etc, much faster than actually evaluating an actual goal process. I would have to have some basic
     rules in place for the fitness setter that goes beyond simply randomly assigning fitness values to the individuals.
+
+    7. I think I should rank the species and prevent the top 3-5 from going extinct. I think we're losing promising
+    species by culling them too quickly.

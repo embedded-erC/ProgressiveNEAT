@@ -177,7 +177,13 @@ class Genome(NEATConfigBase):
         :param _start_node_id:
         :return:
         """
-        next_layer, affected_nodes = self.node_genes[_start_node_id].shift_layer(_input_layer)
+        next_layer, affected_nodes, off_the_rails = self.node_genes[_start_node_id].shift_layer(_input_layer)
+        if off_the_rails:
+            # for i in self.connection_genes.values():
+            #     print("in node", i.in_node, "out node", i.out_node)
+            # print(affected_nodes)
+            raise IndentationError
+
         for node in affected_nodes:
             self._propagate_layer_change(node, next_layer)
 
@@ -222,7 +228,6 @@ class Gene(NEATConfigBase):
             1. Maintain an innovation number
         Data Reporting/Visualization Responsibilities:
     """
-
     def __init__(self, innov_num, **kwargs):
         super().__init__(**kwargs)
         self.innov_num = innov_num
@@ -241,7 +246,6 @@ class ConnectionGene(Gene):
             7. Have a mechanism to change the enable/disable bit
         Data Reporting/Visualization Responsibilities:
     """
-
     def __init__(self, in_node, out_node, conn_weight, **kwargs):
         super().__init__(**kwargs)
         self.in_node = in_node
@@ -271,7 +275,6 @@ class NodeGene(Gene):
         Data Reporting/Visualization Responsibilities:
             1. Track node evaluations (transfer function firings)
     """
-
     def __init__(self, node_type='hidden', **kwargs):
         super().__init__(**kwargs)
         self.node_type = node_type
@@ -308,16 +311,24 @@ class NodeGene(Gene):
         :param _upstream_node_layer:
         :return:
         """
+
+        off_the_rails = False
+        if _upstream_node_layer >= 50:
+            # print("Off the rails")
+            # print(self.node_type, self.inbound_connections, self.outbound_connections)
+            off_the_rails = True
+
         if _upstream_node_layer >= self.layer:
             self.layer = _upstream_node_layer + 1
-            return self.layer, self.outbound_connections
-        return [], []
+            return self.layer, [out_conn for out_conn in self.outbound_connections if out_conn != self.innov_num], off_the_rails
+        return [], [], off_the_rails
 
     def _get_activation(self):
         if self.node_type == 'input':
             return sum(self.inbound_activations)
-        elif not self.is_isolated:
-            return 1.0 / (1.0 + exp(self.kSigmoid_power * sum(self.inbound_activations)))
+        if not self.is_isolated:
+            # Limit sum of activations to the range -15 to 15. Essentially 0 to 1 for the activation at that point
+            return 1.0 / (1.0 + exp(self.kSigmoid_power * max(-15, min(15, sum(self.inbound_activations)))))
         else:
             return 0
 
