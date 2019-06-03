@@ -48,14 +48,11 @@ import os
 import configparser
 
 
-def get_config():
+def get_config(_config_name=''):
+
     config = configparser.ConfigParser()
-
-    # config_type = "config"
-    # config_type = "XORconfig"
-    config_type = "pytest_config"
-
-    config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, config_type))
+    config_name = _config_name if _config_name else "pytest_config"
+    config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, config_name))
 
     config.read(config_path)
     config_dict = dict()
