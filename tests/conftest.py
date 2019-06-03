@@ -7,6 +7,30 @@ import Source.Visualization.visualization as visualization
 from Source.constants import get_config
 
 
+@pytest.fixture()
+def genome_basic():
+    c1 = genome.ConnectionGene(1, 2, 0.1, innov_num=3, config=get_config())
+
+    n1 = genome.NodeGene(node_type='input', innov_num=1, config=get_config())
+    n2 = genome.NodeGene(node_type='output', innov_num=2, config=get_config())
+
+    connections = {
+        c1.innov_num: c1,
+    }
+
+    nodes = {
+        n1.innov_num: n1,
+        n2.innov_num: n2,
+    }
+
+    g1 = genome.Genome(config=get_config())
+
+    g1.node_genes = nodes
+    g1.connection_genes = connections
+
+    return g1
+
+
 @pytest.fixture
 def genome_simple_shuffle():
     c1 = genome.ConnectionGene(1, 3, 0.5, innov_num=5, config=get_config())
@@ -374,8 +398,9 @@ def genome_recursive_two_outputs():
 
 
 @pytest.fixture()
-def species_one_member():
-    i1 = individual.Individual("Mock Genome", config=get_config())
+def species_one_member(genome_basic):
+
+    i1 = individual.Individual(genome_basic, config=get_config())
     i1.fitness = 1
 
     s1 = species.Species(0, i1, config=get_config())
@@ -384,12 +409,13 @@ def species_one_member():
 
 
 @pytest.fixture()
-def species_five_members():
-    i1 = individual.Individual("Mock Genome", config=get_config())
-    i2 = individual.Individual("Mock Genome", config=get_config())
-    i3 = individual.Individual("Mock Genome", config=get_config())
-    i4 = individual.Individual("Mock Genome", config=get_config())
-    i5 = individual.Individual("Mock Genome", config=get_config())
+def species_five_members(genome_basic):
+
+    i1 = individual.Individual(genome_basic, config=get_config())
+    i2 = individual.Individual(genome_basic, config=get_config())
+    i3 = individual.Individual(genome_basic, config=get_config())
+    i4 = individual.Individual(genome_basic, config=get_config())
+    i5 = individual.Individual(genome_basic, config=get_config())
 
     i1.fitness = 10
     i2.fitness = 15
@@ -403,13 +429,14 @@ def species_five_members():
 
 
 @pytest.fixture()
-def species_six_members():
-    i1 = individual.Individual("Mock Genome", config=get_config())
-    i2 = individual.Individual("Mock Genome", config=get_config())
-    i3 = individual.Individual("Mock Genome", config=get_config())
-    i4 = individual.Individual("Mock Genome", config=get_config())
-    i5 = individual.Individual("Mock Genome", config=get_config())
-    i6 = individual.Individual("Mock Genome", config=get_config())
+def species_six_members(genome_basic):
+
+    i1 = individual.Individual(genome_basic, config=get_config())
+    i2 = individual.Individual(genome_basic, config=get_config())
+    i3 = individual.Individual(genome_basic, config=get_config())
+    i4 = individual.Individual(genome_basic, config=get_config())
+    i5 = individual.Individual(genome_basic, config=get_config())
+    i6 = individual.Individual(genome_basic, config=get_config())
 
     i1.fitness = 10
     i2.fitness = 15

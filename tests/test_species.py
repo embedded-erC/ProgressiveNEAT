@@ -119,9 +119,9 @@ def test_report_stats(species_six_members):
     assert stats_dict["extinction generation"] is None
 
 
-def test_add_member(species_six_members):
+def test_add_member(species_six_members, genome_basic):
 
-    new_member = Individual("Mock Genome", config=get_config())
+    new_member = Individual(genome_basic, config=get_config())
 
     assert new_member.assigned_specie is None
     assert len(species_six_members.members) == 6

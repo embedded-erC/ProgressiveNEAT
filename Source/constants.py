@@ -44,16 +44,20 @@
 
 """
 
+import os
 import configparser
 
 
 def get_config():
     config = configparser.ConfigParser()
-    # config.read('C:\\Users\\erC\\PycharmProjects\\ProgressiveNEAT\\config')  # TODO: Need to define a testing config
-    # config.read('/home/erc/PycharmProjects/ProgressiveNEAT/config')
-    # config.read('C:\\Users\\erC\\PycharmProjects\\ProgressiveNEAT\\pytest_config')
-    # config.read('/home/erc/PycharmProjects/ProgressiveNEAT/pytest_config')
-    config.read('C:\\Users\\erC\\PycharmProjects\\ProgressiveNEAT\\XORconfig')
+
+    # config_type = "config"
+    # config_type = "XORconfig"
+    config_type = "pytest_config"
+
+    config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, config_type))
+
+    config.read(config_path)
     config_dict = dict()
 
     try:
