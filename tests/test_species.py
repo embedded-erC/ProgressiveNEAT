@@ -42,6 +42,8 @@ def test_sum_adjusted_fitnesses(species_five_members, species_six_members):
 
 
 def test_update_generations_and_fitness_peak(species_six_members):
+    species_six_members.rank = 100  # Otherwise it won't be marked for extinction.
+
     assert species_six_members.peak_fitness == 0
     assert species_six_members.generations_existed == 0
     assert species_six_members.num_generations_at_peak == 0
