@@ -125,8 +125,12 @@ class Visualization(object):
             )
         plotly.offline.plot(data, filename='Species Tracking.html', validate=False)
 
+    def _graph_peak_fitness(self):
+        pass
+
     def graph_stats(self):
 
         self._graph_num_speices()
         self._graph_champion()
         self._graph_species_sizes()
+        self._graph_peak_fitness()

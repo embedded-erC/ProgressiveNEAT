@@ -177,12 +177,7 @@ class Genome(NEATConfigBase):
         :param _start_node_id:
         :return:
         """
-        next_layer, affected_nodes, off_the_rails = self.node_genes[_start_node_id].shift_layer(_input_layer)
-        if off_the_rails:
-            for i in self.connection_genes.values():
-                print("in node", i.in_node, "out node", i.out_node)
-            print(affected_nodes)
-            raise IndentationError
+        next_layer, affected_nodes = self.node_genes[_start_node_id].shift_layer(_input_layer)
 
         for node in affected_nodes:
             self._propagate_layer_change(node, next_layer)
@@ -312,16 +307,10 @@ class NodeGene(Gene):
         :return:
         """
 
-        off_the_rails = False
-        if _upstream_node_layer >= 50:
-            # print("Off the rails")
-            # print(self.node_type, self.inbound_connections, self.outbound_connections)
-            off_the_rails = True
-
         if _upstream_node_layer >= self.layer:
             self.layer = _upstream_node_layer + 1
-            return self.layer, [out_conn for out_conn in self.outbound_connections if out_conn != self.innov_num], off_the_rails
-        return [], [], off_the_rails
+            return self.layer, [out_conn for out_conn in self.outbound_connections if out_conn != self.innov_num]
+        return [], []
 
     def _get_activation(self):
         if self.node_type == 'input':

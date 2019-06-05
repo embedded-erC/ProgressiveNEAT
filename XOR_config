@@ -11,7 +11,7 @@ bias node = yes
 # AvgWtDiffMatching is the average wt difference for all matching genes between the genomes, including disabled genes
 c1 = 1.0
 c2 = 1.0
-c3 = 0.2
+c3 = 0.1
 gene counting threshold = 20
 compatibility threshold = 4.0
 extinction generation = 25
@@ -30,8 +30,8 @@ new node chance = 0.01
 new connection chance = 0.05
 
 [Mating]
-gene disabled if disabled in a parent chance = 0.75
-percent offspring from mutation only = 0.25
+gene disabled if disabled in a parent chance = .75
+percent offspring from mutation only = .25
 interspecies mating rate = 0.01
 
 [Visualization]

@@ -15,7 +15,7 @@ def evaluate_task(_individual):
 
 if __name__ == '__main__':
 
-    target_fitness = 14.0
+    target_fitness = 15.9995
     best_fitness = 0
 
     xor_config = get_config("XOR_config")

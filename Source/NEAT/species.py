@@ -167,6 +167,7 @@ class Species(NEATConfigBase):
                 current_unused_innov = individual.genome.add_node(innovs_this_generation, current_unused_innov)
             if random.random() < self.kNew_conn_rate:
                 current_unused_innov = individual.genome.add_connection(innovs_this_generation, current_unused_innov)
+            individual.genome.assemble_topology()
         return current_unused_innov
 
     def choose_representative(self):
