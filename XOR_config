@@ -2,7 +2,7 @@
 # With the exception of the Visualization section, all fields are mandatory. No defaults are provided
 
 [General]
-population size = 150
+population size = 250
 transfer function power = -4.9
 bias node = yes
 
@@ -11,10 +11,10 @@ bias node = yes
 # AvgWtDiffMatching is the average wt difference for all matching genes between the genomes, including disabled genes
 c1 = 1.0
 c2 = 1.0
-c3 = 0.4
+c3 = 0.2
 gene counting threshold = 20
-compatibility threshold = 3.0
-extinction generation = 15
+compatibility threshold = 4.0
+extinction generation = 25
 minimum new species size = 5
 
 # Take this percentage of the best performers as the basis for the next generation
@@ -23,10 +23,10 @@ percentage allowed to reproduce = 0.75
 [Mutation]
 # Chances in pct / 100. So 0.8 is an 80% chance of occurrence
 connection mutation chance = 0.8
-max connection change = 0.3
+max connection change = 1.5
 uniform weight change chance = 0.9
 # random new weight chance = 0.1
-new node chance = 0.03
+new node chance = 0.01
 new connection chance = 0.05
 
 [Mating]

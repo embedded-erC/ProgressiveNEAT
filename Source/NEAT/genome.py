@@ -179,9 +179,9 @@ class Genome(NEATConfigBase):
         """
         next_layer, affected_nodes, off_the_rails = self.node_genes[_start_node_id].shift_layer(_input_layer)
         if off_the_rails:
-            # for i in self.connection_genes.values():
-            #     print("in node", i.in_node, "out node", i.out_node)
-            # print(affected_nodes)
+            for i in self.connection_genes.values():
+                print("in node", i.in_node, "out node", i.out_node)
+            print(affected_nodes)
             raise IndentationError
 
         for node in affected_nodes:

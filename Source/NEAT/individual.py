@@ -21,7 +21,7 @@ class Individual(NEATConfigBase):
         Individual.num_created += 1
         self.id = Individual.num_created
         self.genome = genome
-        self.genome.assemble_topology()  # TODO: Test around this? or just do it elsewhere?
+        self.genome.assemble_topology()
         self.fitness = 0
         self.assigned_specie = None
 

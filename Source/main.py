@@ -36,11 +36,11 @@ class NEATSession(object):
 
     def _eliminate_extinct_species(self):  # TODO: TEST ME
         extinct_species_keys = [specie.id for specie in self.species.values() if
-                                specie.extinction_generation and specie.rank > 5]
+                                specie.extinction_generation]
         for specie in extinct_species_keys:
             dead_one = self.species.pop(specie)
-            # print("EXTINCTION!!! ", dead_one.adjusted_fitness_sum, dead_one.peak_fitness, dead_one.generations_existed,
-            #       dead_one.rank)
+            print("EXTINCTION!!! ", dead_one.adjusted_fitness_sum, dead_one.peak_fitness, dead_one.generations_existed,
+                  dead_one.rank)
 
     def _interspecies_mate(self):
         hybrid_offspring = []
@@ -114,9 +114,9 @@ class NEATSession(object):
         # innovs_this_generation = dict()
 
         self._update_all_species()
+        self._eliminate_extinct_species()
         self._gather_visualization_data()
         self._rank_speices()
-        self._eliminate_extinct_species()
         self._choose_species_representatives()
         self.functions.sort_into_species(self.species, self.population, self.generation)
         self._mutate_species(self.all_innovs)
@@ -124,6 +124,9 @@ class NEATSession(object):
 
         # TODO: Move all this to functions and have no methods that are not required for the external interface
         # TODO: Get tests in place for all of those functions.
+
+    def show_stats(self):
+        self.session_stats.graph_stats()
 
 
 if __name__ == "__main__":

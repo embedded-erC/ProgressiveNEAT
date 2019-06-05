@@ -1,5 +1,5 @@
 """
-Module-leve docstring stub
+Module-level docstring stub
 """
 
 

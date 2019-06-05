@@ -85,7 +85,7 @@ class Species(NEATConfigBase):
             self.num_generations_at_peak = 1
         else:
             self.num_generations_at_peak += 1
-        if self.num_generations_at_peak >= self.kExtinction_generation and not self.extinction_generation:
+        if self.num_generations_at_peak >= self.kExtinction_generation and not self.extinction_generation and self.rank > 5:
             self.extinction_generation = self.generation_created + self.generations_existed
 
     def add_member(self, _new_individual):

@@ -15,13 +15,13 @@ def evaluate_task(_individual):
 
 if __name__ == '__main__':
 
-    target_fitness = 15.8
+    target_fitness = 14.0
     best_fitness = 0
 
     xor_config = get_config("XOR_config")
     session = NEATSession(2, 1, xor_config)
 
-    for generation in range(100):
+    for generation in range(10000):
         population = session.get_individuals()
         for individual in population:
             performance = evaluate_task(individual)
@@ -30,7 +30,8 @@ if __name__ == '__main__':
         session.collect_individuals(population)
         session.advance_generation()
 
-        print(best_fitness)
+        print(best_fitness, "Number of species: {0}".format(len(session.species)))
         if best_fitness > target_fitness:
-            print("Success")
+            print("Success on generation {0}".format(generation))
+            session.show_stats()
             break

@@ -2,6 +2,9 @@
 Module level docstring stub
 """
 
+import plotly
+import plotly.graph_objs as go
+
 
 class Visualization(object):
     """
@@ -67,3 +70,63 @@ class Visualization(object):
         :return:
         """
         self.generational_stats[self.current_generation].update({_species_id: _stats_dict})
+
+    def _graph_num_speices(self):
+
+        x = sorted(self.generational_stats.keys())
+        y = [len(self.generational_stats[generation]) for generation in x]
+
+        data = [go.Scatter(
+            x=x,
+            y=y,
+            mode='lines+markers'
+        )]
+
+        plotly.offline.plot(data, filename='Number of Species Per Generation.html')
+
+    def _graph_champion(self):
+        pass
+
+    def _graph_species_sizes(self):
+
+        traces = {}
+        for generation in sorted(self.generational_stats.keys()):
+            pop_size_this_gen = sum(
+                [self.generational_stats[generation][specie]['size'] for specie in self.generational_stats[generation]])
+            for specie in self.generational_stats[generation]:
+                try:
+                    if self.generational_stats[generation][specie]['extinction generation']:
+                        pass
+                    else:
+                        traces[specie]['size'].append(self.generational_stats[generation][specie]['size'])
+                        traces[specie]['y-value'].append(pop_size_this_gen)
+                        traces[specie]['x-value'].append(generation)
+                except KeyError:
+                    traces[specie] = {'y-value': [pop_size_this_gen],
+                                      'x-value': [generation],
+                                      'size': [self.generational_stats[generation][specie]['size']]}
+
+                if not self.generational_stats[generation][specie]['extinction generation']:
+                    pop_size_this_gen -= self.generational_stats[generation][specie]['size']
+
+        data = []
+        for i in traces:
+            data.append(
+                dict(
+                    x=traces[i]['x-value'],
+                    y=traces[i]["y-value"],
+                    text=traces[i]['size'],
+                    hoverinfo='text',
+                    mode='lines',
+                    line=dict(width=0.5),
+                    fill='tonexty',
+                    stackgroup=i
+                )
+            )
+        plotly.offline.plot(data, filename='Species Tracking.html', validate=False)
+
+    def graph_stats(self):
+
+        self._graph_num_speices()
+        self._graph_champion()
+        self._graph_species_sizes()
