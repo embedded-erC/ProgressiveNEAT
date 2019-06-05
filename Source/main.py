@@ -20,6 +20,7 @@ class NEATSession(object):
         self.population = [self.functions.create_initial_individual(inputs, outputs) for individual in range(self.config['kPop_size'])]
         self.current_unused_innov = self.population[0].genome.get_greatest_innov() + 1
         self.session_stats = visualization.Visualization()
+        self.overall_peak_fitness = 0
 
         # TESTING:
         self.all_innovs = dict()
@@ -65,7 +66,8 @@ class NEATSession(object):
     def _gather_visualization_data(self):
         self.session_stats.set_generation(self.generation)
         for specie in self.species.values():
-            self.session_stats.gather_generational_stats(specie.id, specie.report_stats())
+            self.session_stats.gather_species_generational_stats(specie.id, specie.report_stats())
+        self.session_stats.gather_overall_generational_stats({'overall peak fitness': self.overall_peak_fitness})
 
     def _mutate_species(self, _innovs_this_generation):
         for specie in self.species.values():
@@ -77,6 +79,11 @@ class NEATSession(object):
             # enum_species_fitness looks like:  (enum_num, (peak_fitness, species.id))
             # So enum_species_fitness[1][1]] gives you the species ID
             self.species[enum_species_fitness[1][1]].rank = enum_species_fitness[0]
+
+    def _set_overall_peak_fitness(self):
+        best_fitness_this_gen = max([specie.peak_fitness for specie in self.species.values()])
+        if best_fitness_this_gen > self.overall_peak_fitness:
+            self.overall_peak_fitness = best_fitness_this_gen
 
     def _update_all_species(self):
         for specie in self.species.values():
@@ -115,6 +122,7 @@ class NEATSession(object):
 
         self._update_all_species()
         self._eliminate_extinct_species()
+        self._set_overall_peak_fitness()
         self._gather_visualization_data()
         self._rank_speices()
         self._choose_species_representatives()

@@ -10,13 +10,11 @@ def evaluate_task(_individual):
 
     squared_performance = ((1 - neither) + left + right + (1 - both)) ** 2
     _individual.fitness = squared_performance
-    return squared_performance
 
 
 if __name__ == '__main__':
 
-    target_fitness = 15.9995
-    best_fitness = 0
+    target_fitness = 14.0
 
     xor_config = get_config("XOR_config")
     session = NEATSession(2, 1, xor_config)
@@ -24,14 +22,12 @@ if __name__ == '__main__':
     for generation in range(10000):
         population = session.get_individuals()
         for individual in population:
-            performance = evaluate_task(individual)
-            if performance > best_fitness:
-                best_fitness = performance
+            evaluate_task(individual)
         session.collect_individuals(population)
         session.advance_generation()
 
-        print(best_fitness, "Number of species: {0}".format(len(session.species)))
-        if best_fitness > target_fitness:
+        print(session.overall_peak_fitness, "Number of species: {0}".format(len(session.species)))
+        if session.overall_peak_fitness > target_fitness:
             print("Success on generation {0}".format(generation))
             session.show_stats()
             break

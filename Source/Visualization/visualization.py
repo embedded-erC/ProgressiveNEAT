@@ -53,13 +53,17 @@ class Visualization(object):
     def __init__(self):
         super().__init__()
         self.current_generation = 0
-        self.generational_stats = dict()
+        self.species_generational_stats = dict()
+        self.overall_generational_stats = dict()
 
     def set_generation(self, _generation):
         self.current_generation = _generation
-        self.generational_stats[_generation] = dict()
+        self.species_generational_stats[_generation] = dict()
 
-    def gather_generational_stats(self, _species_id, _stats_dict):
+    def gather_overall_generational_stats(self, _stats_dict):
+        self.overall_generational_stats[self.current_generation] = _stats_dict
+
+    def gather_species_generational_stats(self, _species_id, _stats_dict):
         """
         This will interface with Species report_stats() methods.
         Species.report_stats() will return a dict containing the following fields as text dictionary keys:
@@ -69,12 +73,12 @@ class Visualization(object):
             4. "extinction generation" - None if an active species, else the generation that it died out
         :return:
         """
-        self.generational_stats[self.current_generation].update({_species_id: _stats_dict})
+        self.species_generational_stats[self.current_generation].update({_species_id: _stats_dict})
 
     def _graph_num_speices(self):
 
-        x = sorted(self.generational_stats.keys())
-        y = [len(self.generational_stats[generation]) for generation in x]
+        x = sorted(self.species_generational_stats.keys())
+        y = [len(self.species_generational_stats[generation]) for generation in x]
 
         data = [go.Scatter(
             x=x,
@@ -90,24 +94,24 @@ class Visualization(object):
     def _graph_species_sizes(self):
 
         traces = {}
-        for generation in sorted(self.generational_stats.keys()):
+        for generation in sorted(self.species_generational_stats.keys()):
             pop_size_this_gen = sum(
-                [self.generational_stats[generation][specie]['size'] for specie in self.generational_stats[generation]])
-            for specie in self.generational_stats[generation]:
+                [self.species_generational_stats[generation][specie]['size'] for specie in self.species_generational_stats[generation]])
+            for specie in self.species_generational_stats[generation]:
                 try:
-                    if self.generational_stats[generation][specie]['extinction generation']:
+                    if self.species_generational_stats[generation][specie]['extinction generation']:
                         pass
                     else:
-                        traces[specie]['size'].append(self.generational_stats[generation][specie]['size'])
+                        traces[specie]['size'].append(self.species_generational_stats[generation][specie]['size'])
                         traces[specie]['y-value'].append(pop_size_this_gen)
                         traces[specie]['x-value'].append(generation)
                 except KeyError:
                     traces[specie] = {'y-value': [pop_size_this_gen],
                                       'x-value': [generation],
-                                      'size': [self.generational_stats[generation][specie]['size']]}
+                                      'size': [self.species_generational_stats[generation][specie]['size']]}
 
-                if not self.generational_stats[generation][specie]['extinction generation']:
-                    pop_size_this_gen -= self.generational_stats[generation][specie]['size']
+                if not self.species_generational_stats[generation][specie]['extinction generation']:
+                    pop_size_this_gen -= self.species_generational_stats[generation][specie]['size']
 
         data = []
         for i in traces:
@@ -126,7 +130,16 @@ class Visualization(object):
         plotly.offline.plot(data, filename='Species Tracking.html', validate=False)
 
     def _graph_peak_fitness(self):
-        pass
+        x = sorted(self.overall_generational_stats.keys())
+        y = [self.overall_generational_stats[generation]['overall peak fitness'] for generation in x]
+
+        data = [go.Scatter(
+            x=x,
+            y=y,
+            mode='lines+markers'
+        )]
+
+        plotly.offline.plot(data, filename='Peak Fitness.html')
 
     def graph_stats(self):
 

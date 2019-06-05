@@ -196,6 +196,7 @@ class Species(NEATConfigBase):
         stats = dict()
         stats["size"] = len(self.members)
         stats["species fitness"] = self.adjusted_fitness_sum * len(self.members)
+        stats['peak fitness'] = self.peak_fitness
         stats["peak individual"] = copy.deepcopy(self.members[-1])
         stats["extinction generation"] = self.extinction_generation
 
