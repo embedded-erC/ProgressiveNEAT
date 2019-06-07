@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
     target_fitness = 14.0
 
-    xor_config = get_config("XOR_config")
+    xor_config = get_config("XORconfig")
     session = NEATSession(2, 1, xor_config)
 
     for generation in range(10000):
