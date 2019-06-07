@@ -1,6 +1,11 @@
 import pygame
 
 
+class AnchoredBlocks(pygame.sprite.Group):
+    def __init__(self):
+        super().__init__()
+
+
 class BlockGroup(pygame.sprite.Group):
     def __init__(self, block_size, color, starting_pos):
         super().__init__()
@@ -11,6 +16,7 @@ class BlockGroup(pygame.sprite.Group):
         self.add(b1, b2, b3, b4)
 
         self.block_size = block_size
+        self.anchored = False
 
     def rotate(self):
         pass
@@ -21,17 +27,19 @@ class BlockGroup(pygame.sprite.Group):
         pass
 
     def update(self, *args):
-        """ The regular one-block downward tick of the active piece"""
+        """ The regular, one-block downward tick of the active piece"""
         self.move_blocks(0, self.block_size)
 
     def move_blocks(self, _dx, _dy):
         legal_move = True
         for block in self.sprites():
             new_block_pos = block.request_move(_dx, _dy)
-            if new_block_pos.center[0] > (self.block_size * 11) or \
-                    new_block_pos.center[0] < self.block_size or \
-                    new_block_pos.center[1] > (self.block_size * 20):
+            if new_block_pos.center[0] > (self.block_size * 11) or new_block_pos.center[0] < self.block_size:
                 legal_move = False
+            elif new_block_pos.center[1] > (self.block_size * 20):
+                legal_move = False
+                self.anchored = True
+
         if legal_move:
             for block in self.sprites():
                 block.accept_move()
@@ -48,8 +56,6 @@ class SingleBlock(pygame.sprite.Sprite):
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
 
-        # Fetch the rectangle object that has the dimensions of the image
-        # Update the position of this object by setting the values of rect.x and rect.y
         self.rect = self.image.get_rect()
         self.rect.move_ip(x, y)
 
@@ -62,13 +68,6 @@ class SingleBlock(pygame.sprite.Sprite):
 
     def accept_move(self):
         self.rect = self.requested_pos
-
-    # def update(self):
-    #     if not self.collided:
-    #         new_position = self.rect.move(0, 20)
-    #         self.rect = new_position
-    #         if not self.area.contains(new_position):
-    #             self.collided = True
 
     def anchor(self):
         """ One block hit the bottom or another block. Anchor all the sprites"""
