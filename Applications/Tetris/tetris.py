@@ -23,10 +23,20 @@ class Tetris(object):
         self.left_wall = WallAndFloor(self.block_size, self.block_size * 20, 0, 0)
         self.right_wall = WallAndFloor(self.block_size, self.block_size * 20, self.block_size * 11, 0)
         self.floor = WallAndFloor(self.block_size * 12, self.block_size, 0, self.block_size * 20)
+        self.line_scan = pygame.sprite.GroupSingle(WallAndFloor(self.block_size * 10, self.block_size, self.block_size, 0))
 
         self.active_piece = self._get_next_block()
         self.on_deck_piece = self._get_next_block()
         self.anchored_pieces = AnchoredBlocks()
+
+        self.removed_lines = 0
+
+    def _anchor_piece(self):
+        self.active_piece.move(0, -self.block_size)
+        self.anchored_pieces.add(self.active_piece.sprites())
+        self.active_piece = self.on_deck_piece
+        self.on_deck_piece = self._get_next_block()
+        self._scan_for_completed_lines()
 
     def _check_lateral_collision(self, _last_lateral_move):
         if pygame.sprite.spritecollide(self.left_wall, self.active_piece, False) or \
@@ -34,14 +44,21 @@ class Tetris(object):
                 pygame.sprite.groupcollide(self.active_piece, self.anchored_pieces, False, False, collided=None):
             self.active_piece.move(-_last_lateral_move, 0)
 
+    def _scan_for_completed_lines(self):
+        for line_index in range(20):
+            collisions = pygame.sprite.groupcollide(self.anchored_pieces, self.line_scan, False, False, collided=None)
+            if len(collisions) == 10:
+                for sprite in collisions.keys():
+                    sprite.kill()
+                self.removed_lines += 1
+            self.line_scan.sprite.move(self.block_size)
+        self.line_scan.sprite.move(-self.block_size * 20)
+
     def _move_piece_down(self):
         self.active_piece.move(0, self.block_size)
         if pygame.sprite.spritecollide(self.floor, self.active_piece, False) or \
                 pygame.sprite.groupcollide(self.active_piece, self.anchored_pieces, False, False, collided=None):
-            self.active_piece.move(0, -self.block_size)
-            self.anchored_pieces.add(self.active_piece.sprites())
-            self.active_piece = self.on_deck_piece
-            self.on_deck_piece = self._get_next_block()
+            self._anchor_piece()
             return True
         return False
 
@@ -87,21 +104,20 @@ class Tetris(object):
 
             if not framecount % 5:
                 self._move_piece_down()
-            # self.anchored_pieces.update()
+
+            # Display Control
             self.active_area.fill((0, 0, 0))
             self.screen.blit(self.active_area, (self.block_size, 0))
-
             self.active_piece.draw(self.screen)
             self.anchored_pieces.draw(self.screen)
             pygame.display.flip()
 
-            framecount += 1
-
             # Note the arg to clock.tick() is the number of frames requested/second.
             clock.tick(30)
+            framecount += 1
 
 
 if __name__ == '__main__':
 
-    game = Tetris()
+    game = Tetris([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     game.mainloop()

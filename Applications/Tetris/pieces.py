@@ -8,6 +8,9 @@ class WallAndFloor(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.move_ip(x_pos, y_pos)
 
+    def move(self, _dy):
+        self.rect = self.rect.move(0, _dy)
+
 
 class AnchoredBlocks(pygame.sprite.Group):
     def __init__(self):
