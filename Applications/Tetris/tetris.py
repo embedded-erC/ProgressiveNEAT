@@ -31,6 +31,7 @@ class Tetris(object):
 
         self.removed_lines = 0
         self.score = 0
+        self.game_over = False
 
     def _anchor_piece(self):
         self.active_piece.move(0, -self.block_size)
@@ -39,10 +40,15 @@ class Tetris(object):
         self.on_deck_piece = self._get_next_block()
         self._scan_for_completed_lines()
         self._calculate_score()
+        self._check_game_over()
 
     def _calculate_score(self):
         self.score += (self.removed_lines ** 2) * 100 + 10  # 10 per anchored block regardless
         self.removed_lines = 0
+
+    def _check_game_over(self):
+        if pygame.sprite.groupcollide(self.anchored_pieces, self.line_scan, False, False, collided=None):
+            self.game_over = True
 
     def _check_lateral_collision(self, _last_lateral_move):
         if pygame.sprite.spritecollide(self.left_wall, self.active_piece, False) or \
@@ -86,7 +92,6 @@ class Tetris(object):
         lateral_move_this_frame = None
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                print(self.score)
                 sys.exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
                 self._move_to_bottom()
@@ -106,7 +111,7 @@ class Tetris(object):
         self.screen.blit(self.background, (0, 0))
         framecount = 0
 
-        while True:
+        while not self.game_over:
 
             lateral_move_this_frame = self._process_events()
             if lateral_move_this_frame:
@@ -125,6 +130,8 @@ class Tetris(object):
             # Note the arg to clock.tick() is the number of frames requested/second.
             clock.tick(30)
             framecount += 1
+
+        print(self.score)
 
 
 if __name__ == '__main__':
