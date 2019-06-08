@@ -30,6 +30,7 @@ class Tetris(object):
         self.anchored_pieces = AnchoredBlocks()
 
         self.removed_lines = 0
+        self.score = 0
 
     def _anchor_piece(self):
         self.active_piece.move(0, -self.block_size)
@@ -37,6 +38,11 @@ class Tetris(object):
         self.active_piece = self.on_deck_piece
         self.on_deck_piece = self._get_next_block()
         self._scan_for_completed_lines()
+        self._calculate_score()
+
+    def _calculate_score(self):
+        self.score += (self.removed_lines ** 2) * 100 + 10  # 10 per anchored block regardless
+        self.removed_lines = 0
 
     def _check_lateral_collision(self, _last_lateral_move):
         if pygame.sprite.spritecollide(self.left_wall, self.active_piece, False) or \
@@ -45,14 +51,17 @@ class Tetris(object):
             self.active_piece.move(-_last_lateral_move, 0)
 
     def _scan_for_completed_lines(self):
+        self.line_scan.sprite.move(self.block_size * 20)
         for line_index in range(20):
             collisions = pygame.sprite.groupcollide(self.anchored_pieces, self.line_scan, False, False, collided=None)
             if len(collisions) == 10:
                 for sprite in collisions.keys():
                     sprite.kill()
                 self.removed_lines += 1
-            self.line_scan.sprite.move(self.block_size)
-        self.line_scan.sprite.move(-self.block_size * 20)
+            elif self.removed_lines and collisions:
+                for sprite in collisions.keys():
+                    sprite.move(0, self.block_size * self.removed_lines)
+            self.line_scan.sprite.move(-self.block_size)
 
     def _move_piece_down(self):
         self.active_piece.move(0, self.block_size)
@@ -77,6 +86,7 @@ class Tetris(object):
         lateral_move_this_frame = None
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                print(self.score)
                 sys.exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
                 self._move_to_bottom()
@@ -105,7 +115,7 @@ class Tetris(object):
             if not framecount % 5:
                 self._move_piece_down()
 
-            # Display Control
+            # Display Control - Honestly might turn this off when NEAT is running to really make things fly...
             self.active_area.fill((0, 0, 0))
             self.screen.blit(self.active_area, (self.block_size, 0))
             self.active_piece.draw(self.screen)
@@ -119,5 +129,5 @@ class Tetris(object):
 
 if __name__ == '__main__':
 
-    game = Tetris([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    game = Tetris([1, 1, 1, 1, 1, 1, 1, 1, 0, 0])
     game.mainloop()
