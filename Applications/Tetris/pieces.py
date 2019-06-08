@@ -1,6 +1,14 @@
 import pygame
 
 
+class WallAndFloor(pygame.sprite.Sprite):
+    def __init__(self, width, height, x_pos, y_pos):
+        super().__init__()
+        self.image = pygame.Surface([width, height])
+        self.rect = self.image.get_rect()
+        self.rect.move_ip(x_pos, y_pos)
+
+
 class AnchoredBlocks(pygame.sprite.Group):
     def __init__(self):
         super().__init__()
@@ -16,39 +24,20 @@ class BlockGroup(pygame.sprite.Group):
         self.add(b1, b2, b3, b4)
 
         self.block_size = block_size
-        self.anchored = False
 
     def rotate(self):
         pass
 
-    def move_to_bottom(self):
-        # This one might be generalizable and not have to be overwritten in child classes
-        print("moving to bottom")
-        pass
-
-    def update(self, *args):
-        """ The regular, one-block downward tick of the active piece"""
-        self.move_blocks(0, self.block_size)
-
-    def move_blocks(self, _dx, _dy):
-        legal_move = True
+    def move(self, _dx, _dy):
         for block in self.sprites():
-            new_block_pos = block.request_move(_dx, _dy)
-            if new_block_pos.center[0] > (self.block_size * 11) or new_block_pos.center[0] < self.block_size:
-                legal_move = False
-            elif new_block_pos.center[1] > (self.block_size * 20):
-                legal_move = False
-                self.anchored = True
-
-        if legal_move:
-            for block in self.sprites():
-                block.accept_move()
+            block.move(_dx, _dy)
 
 
 class SingleBlock(pygame.sprite.Sprite):
     def __init__(self, color, width, x, y):
         super().__init__()
 
+        self.block_size = width
         self.color = color
         self.image = pygame.Surface([width, width])
         self.image.fill(color)
@@ -59,19 +48,8 @@ class SingleBlock(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.move_ip(x, y)
 
-        self.requested_pos = None
-        self.collided = False
-
-    def request_move(self, _dx, _dy):
-        self.requested_pos = self.rect.move(_dx, _dy)
-        return self.requested_pos
-
-    def accept_move(self):
-        self.rect = self.requested_pos
-
-    def anchor(self):
-        """ One block hit the bottom or another block. Anchor all the sprites"""
-        self.rect.move_ip(0, -20)
+    def move(self, _dx, _dy):
+        self.rect = self.rect.move(_dx, _dy)
 
 
 class LongBarPiece(BlockGroup):

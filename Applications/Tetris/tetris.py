@@ -20,6 +20,35 @@ class Tetris(object):
         self.background = self.background.convert()
 
         self.block_types = [LongBarPiece, SquarePiece, LeftElPiece, RightElPiece, TeePiece]
+        self.left_wall = WallAndFloor(self.block_size, self.block_size * 20, 0, 0)
+        self.right_wall = WallAndFloor(self.block_size, self.block_size * 20, self.block_size * 11, 0)
+        self.floor = WallAndFloor(self.block_size * 12, self.block_size, 0, self.block_size * 20)
+
+        self.active_piece = self._get_next_block()
+        self.on_deck_piece = self._get_next_block()
+        self.anchored_pieces = AnchoredBlocks()
+
+    def _check_lateral_collision(self, _last_lateral_move):
+        if pygame.sprite.spritecollide(self.left_wall, self.active_piece, False) or \
+                pygame.sprite.spritecollide(self.right_wall, self.active_piece, False) or \
+                pygame.sprite.groupcollide(self.active_piece, self.anchored_pieces, False, False, collided=None):
+            self.active_piece.move(-_last_lateral_move, 0)
+
+    def _move_piece_down(self):
+        self.active_piece.move(0, self.block_size)
+        if pygame.sprite.spritecollide(self.floor, self.active_piece, False) or \
+                pygame.sprite.groupcollide(self.active_piece, self.anchored_pieces, False, False, collided=None):
+            self.active_piece.move(0, -self.block_size)
+            self.anchored_pieces.add(self.active_piece.sprites())
+            self.active_piece = self.on_deck_piece
+            self.on_deck_piece = self._get_next_block()
+            return True
+        return False
+
+    def _move_to_bottom(self):
+        anchored = self._move_piece_down()
+        while not anchored:
+            anchored = self._move_piece_down()
 
     def _get_next_block(self):
         if self.block_queue:
@@ -27,55 +56,52 @@ class Tetris(object):
         else:
             return self.block_types[random.randrange(0, 5)](self.block_size)
 
-    def mainloop(self):
+    def _process_events(self):
+        lateral_move_this_frame = None
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
+                self._move_to_bottom()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+                self.active_piece.move(self.block_size, 0)
+                lateral_move_this_frame = self.block_size
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
+                self.active_piece.move(-self.block_size, 0)
+                lateral_move_this_frame = -self.block_size
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                self.active_piece.rotate()
+        return lateral_move_this_frame
 
-        active_piece = self._get_next_block()
-        on_deck_piece = self._get_next_block()
-        anchored_pieces = AnchoredBlocks()
+    def mainloop(self):
 
         clock = pygame.time.Clock()
         self.screen.blit(self.background, (0, 0))
+        framecount = 0
 
         while True:
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
-                    active_piece.move_to_bottom()
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                    active_piece.move_blocks(self.block_size, 0)
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                    active_piece.move_blocks(-self.block_size, 0)
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                    active_piece.rotate()
+            lateral_move_this_frame = self._process_events()
+            if lateral_move_this_frame:
+                self._check_lateral_collision(lateral_move_this_frame)
 
-            active_piece.update()
-            if active_piece.anchored:
-                anchored_pieces.add(active_piece.sprites())
-                active_piece = on_deck_piece
-                on_deck_piece = self._get_next_block()
-
-            anchored_pieces.update()
-
-            # sprites_dict = pygame.sprite.groupcollide(active_piece, group2, dokill1, dokill2, collided=None)
-            # if newly_anchored_blocks:
-            #     print("Collided!")
-            #     newly_anchored_blocks = active_piece.anchor()
-                # Also do other stuff like spawn a new active piece, check for full lines, update score, etc etc
-
+            if not framecount % 5:
+                self._move_piece_down()
+            # self.anchored_pieces.update()
             self.active_area.fill((0, 0, 0))
             self.screen.blit(self.active_area, (self.block_size, 0))
 
-            active_piece.draw(self.screen)
-            anchored_pieces.draw(self.screen)
+            self.active_piece.draw(self.screen)
+            self.anchored_pieces.draw(self.screen)
             pygame.display.flip()
 
+            framecount += 1
+
             # Note the arg to clock.tick() is the number of frames requested/second.
-            clock.tick(3)
+            clock.tick(30)
 
 
 if __name__ == '__main__':
 
-    game = Tetris([0, 1, 2, 3, 4])
+    game = Tetris()
     game.mainloop()
