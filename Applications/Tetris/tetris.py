@@ -136,6 +136,6 @@ class Tetris(object):
 
 if __name__ == '__main__':
 
-    # game = Tetris([1, 1, 1, 1, 1, 1, 1, 1, 0, 0])
+    # game = Tetris([4, 4])
     game = Tetris()
     game.mainloop()
