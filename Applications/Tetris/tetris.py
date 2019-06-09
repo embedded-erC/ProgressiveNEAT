@@ -4,14 +4,13 @@ from Applications.Tetris.pieces import *
 
 
 class Tetris(object):
-    def __init__(self, mode='human', block_queue=None):
+    def __init__(self, block_queue=None):
         super().__init__()
 
         pygame.init()
 
         self.block_size = 20
 
-        self.mode = mode
         self.block_queue = block_queue
 
         self.board_size = (self.block_size * 12), (self.block_size * 21)  # 240 for the playing width + 420 for height
@@ -36,6 +35,9 @@ class Tetris(object):
         self.score = 0
         self.game_over = False
 
+        self.clock = pygame.time.Clock()
+        self.screen.blit(self.background, (0, 0))
+
     def _anchor_piece(self):
         self.active_piece.move(0, -self.block_size)
         self.anchored_pieces.add(self.active_piece.sprites())
@@ -58,6 +60,9 @@ class Tetris(object):
                 pygame.sprite.spritecollide(self.right_wall, self.active_piece, False) or \
                 pygame.sprite.groupcollide(self.active_piece, self.anchored_pieces, False, False, collided=None):
             self.active_piece.move(-_last_lateral_move, 0)
+
+    def _get_board_state(self):
+        pass
 
     def _scan_for_completed_lines(self):
         self.line_scan.sprite.move(self.block_size * 20)
@@ -121,7 +126,7 @@ class Tetris(object):
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self._rotate_piece()
 
-    def _process_machine_events(self):
+    def _process_machine_events(self, _input):
         """
         Possible events are:
             1. Rotate
@@ -132,7 +137,7 @@ class Tetris(object):
 
         :return:
         """
-        return False
+        pass
 
     def _paint_screen(self):
         # Display Control - Honestly might turn this off when NEAT is running to really make things fly...
@@ -143,10 +148,6 @@ class Tetris(object):
         pygame.display.flip()
 
     def mainloop(self):
-
-        clock = pygame.time.Clock()
-        self.screen.blit(self.background, (0, 0))
-
         while not self.game_over:
 
             self._process_human_events()
@@ -155,14 +156,23 @@ class Tetris(object):
             self._paint_screen()
 
             # Note the arg to clock.tick() is the number of frames requested/second.
-            clock.tick(30)
+            self.clock.tick(30)
             self.framecount += 1
 
         return self.score
 
+    def do_frame(self, _input):
+        """ Externally-controlled version of mainloop"""
+        if _input:
+            self._process_machine_events(_input)
+        if not self.framecount % 4:
+            self._move_piece_down()
+        self._paint_screen()
+        self.framecount += 1
+        return self.game_over, self._get_board_state()
+
 
 if __name__ == '__main__':
 
-    # game = Tetris([4, 4])
-    game = Tetris()
+    game = Tetris(block_queue=[1] * 20)
     game.mainloop()
