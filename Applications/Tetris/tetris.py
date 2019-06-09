@@ -4,12 +4,14 @@ from Applications.Tetris.pieces import *
 
 
 class Tetris(object):
-    def __init__(self, block_queue=None):
+    def __init__(self, mode='human', block_queue=None):
         super().__init__()
 
         pygame.init()
 
         self.block_size = 20
+
+        self.mode = mode
         self.block_queue = block_queue
 
         self.board_size = (self.block_size * 12), (self.block_size * 21)  # 240 for the playing width + 420 for height
@@ -29,6 +31,7 @@ class Tetris(object):
         self.on_deck_piece = self._get_next_block()
         self.anchored_pieces = AnchoredBlocks()
 
+        self.framecount = 0
         self.removed_lines = 0
         self.score = 0
         self.game_over = False
@@ -69,6 +72,14 @@ class Tetris(object):
                     sprite.move(0, self.block_size * self.removed_lines)
             self.line_scan.sprite.move(-self.block_size)
 
+    def _move_piece_laterally(self, _direction):
+        if _direction == 'right':
+            self.active_piece.move(self.block_size, 0)
+            self._check_lateral_collision(self.block_size)
+        elif _direction == 'left':
+            self.active_piece.move(-self.block_size, 0)
+            self._check_lateral_collision(-self.block_size)
+
     def _move_piece_down(self):
         self.active_piece.move(0, self.block_size)
         if pygame.sprite.spritecollide(self.floor, self.active_piece, False) or \
@@ -88,50 +99,66 @@ class Tetris(object):
         else:
             return self.block_types[random.randrange(0, 5)](self.block_size)
 
-    def _process_events(self):
-        lateral_move_this_frame = None
+    def _rotate_piece(self):
+        self.active_piece.rotate()
+        if pygame.sprite.spritecollide(self.left_wall, self.active_piece, False) or \
+                pygame.sprite.spritecollide(self.right_wall, self.active_piece, False) or \
+                pygame.sprite.spritecollide(self.floor, self.active_piece, False) or \
+                pygame.sprite.groupcollide(self.active_piece, self.anchored_pieces, False, False, collided=None):
+            for extra_rotation in range(3):
+                self.active_piece.rotate()
+
+    def _process_human_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
                 self._move_to_bottom()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                self.active_piece.move(self.block_size, 0)
-                lateral_move_this_frame = self.block_size
+                self._move_piece_laterally('right')
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                self.active_piece.move(-self.block_size, 0)
-                lateral_move_this_frame = -self.block_size
+                self._move_piece_laterally('left')
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                self.active_piece.rotate()
-        return lateral_move_this_frame
+                self._rotate_piece()
+
+    def _process_machine_events(self):
+        """
+        Possible events are:
+            1. Rotate
+            2. Drop
+            3. Nothing. (How do we define nothing? Explicit? Or lack of any other command meeting a threshold? Both?
+            4. Left
+            5. Right
+
+        :return:
+        """
+        return False
+
+    def _paint_screen(self):
+        # Display Control - Honestly might turn this off when NEAT is running to really make things fly...
+        self.active_area.fill((0, 0, 0))
+        self.screen.blit(self.active_area, (self.block_size, 0))
+        self.active_piece.draw(self.screen)
+        self.anchored_pieces.draw(self.screen)
+        pygame.display.flip()
 
     def mainloop(self):
 
         clock = pygame.time.Clock()
         self.screen.blit(self.background, (0, 0))
-        framecount = 0
 
         while not self.game_over:
 
-            lateral_move_this_frame = self._process_events()
-            if lateral_move_this_frame:
-                self._check_lateral_collision(lateral_move_this_frame)
-
-            if not framecount % 5:
+            self._process_human_events()
+            if not self.framecount % 5:
                 self._move_piece_down()
-
-            # Display Control - Honestly might turn this off when NEAT is running to really make things fly...
-            self.active_area.fill((0, 0, 0))
-            self.screen.blit(self.active_area, (self.block_size, 0))
-            self.active_piece.draw(self.screen)
-            self.anchored_pieces.draw(self.screen)
-            pygame.display.flip()
+            self._paint_screen()
 
             # Note the arg to clock.tick() is the number of frames requested/second.
             clock.tick(30)
-            framecount += 1
+            self.framecount += 1
 
-        print(self.score)
+        return self.score
 
 
 if __name__ == '__main__':
