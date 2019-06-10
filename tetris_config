@@ -2,7 +2,7 @@
 # With the exception of the Visualization section, all fields are mandatory. No defaults are provided
 
 [General]
-population size = 50
+population size = 100
 transfer function power = -4.9
 bias node = yes
 

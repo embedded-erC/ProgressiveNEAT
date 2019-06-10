@@ -21,10 +21,11 @@ class Tetris(object):
         self.background = self.background.convert()
 
         self.block_types = [LongBarPiece, SquarePiece, LeftElPiece, RightElPiece, TeePiece]
-        self.left_wall = WallAndFloor(self.block_size, self.block_size * 20, 0, 0)
-        self.right_wall = WallAndFloor(self.block_size, self.block_size * 20, self.block_size * 11, 0)
-        self.floor = WallAndFloor(self.block_size * 12, self.block_size, 0, self.block_size * 20)
-        self.line_scan = pygame.sprite.GroupSingle(WallAndFloor(self.block_size * 10, self.block_size, self.block_size, 0))
+        self.left_wall = UtilitySprite(self.block_size, self.block_size * 20, 0, 0)
+        self.right_wall = UtilitySprite(self.block_size, self.block_size * 20, self.block_size * 11, 0)
+        self.floor = UtilitySprite(self.block_size * 12, self.block_size, 0, self.block_size * 20)
+        self.line_scan = pygame.sprite.GroupSingle(UtilitySprite(self.block_size * 10, self.block_size, self.block_size, 0))
+        self.board_scan = UtilitySprite(self.block_size, self.block_size, self.block_size, 0)
 
         self.active_piece = self._get_next_block()
         self.on_deck_piece = self._get_next_block()
@@ -62,10 +63,23 @@ class Tetris(object):
             self.active_piece.move(-_last_lateral_move, 0)
 
     def _get_board_state(self):
-        pass
+        """ 200-element list of blocks on the board, from upper-left to bottom-right"""
+        occupied_squares = []
+        for board_square in range(1, 201):
+            if pygame.sprite.spritecollide(self.board_scan, self.active_piece, False) or \
+                    pygame.sprite.spritecollide(self.board_scan, self.anchored_pieces, False):
+                occupied_squares.append(1)
+            else:
+                occupied_squares.append(0)
+            if not board_square % 10:
+                self.board_scan.move(-9 * self.block_size, self.block_size)
+            else:
+                self.board_scan.move(self.block_size, 0)
+        self.board_scan.move(0, -20 * self.block_size)
+        return occupied_squares
 
     def _scan_for_completed_lines(self):
-        self.line_scan.sprite.move(self.block_size * 20)
+        self.line_scan.sprite.move(0, self.block_size * 20)
         for line_index in range(20):
             collisions = pygame.sprite.groupcollide(self.anchored_pieces, self.line_scan, False, False, collided=None)
             if len(collisions) == 10:
@@ -75,7 +89,7 @@ class Tetris(object):
             elif self.removed_lines and collisions:
                 for sprite in collisions.keys():
                     sprite.move(0, self.block_size * self.removed_lines)
-            self.line_scan.sprite.move(-self.block_size)
+            self.line_scan.sprite.move(0, -self.block_size)
 
     def _move_piece_laterally(self, _direction):
         if _direction == 'right':
@@ -129,15 +143,22 @@ class Tetris(object):
     def _process_machine_events(self, _input):
         """
         Possible events are:
-            1. Rotate
-            2. Drop
-            3. Nothing. (How do we define nothing? Explicit? Or lack of any other command meeting a threshold? Both?
-            4. Left
-            5. Right
+            0. Nothing
+            1. Left
+            2. Right.
+            3. Rotate
+            4. Drop
 
         :return:
         """
-        pass
+        if _input == 1:
+            self._move_piece_laterally('left')
+        elif _input == 2:
+            self._move_piece_laterally('right')
+        elif _input == 3:
+            self._rotate_piece()
+        elif _input == 4:
+            self._move_to_bottom()
 
     def _paint_screen(self):
         # Display Control - Honestly might turn this off when NEAT is running to really make things fly...
@@ -149,6 +170,7 @@ class Tetris(object):
 
     def mainloop(self):
         while not self.game_over:
+            self.framecount += 1
 
             self._process_human_events()
             if not self.framecount % 5:
@@ -157,22 +179,23 @@ class Tetris(object):
 
             # Note the arg to clock.tick() is the number of frames requested/second.
             self.clock.tick(30)
-            self.framecount += 1
 
         return self.score
 
     def do_frame(self, _input):
         """ Externally-controlled version of mainloop"""
+        self.framecount += 1
         if _input:
             self._process_machine_events(_input)
         if not self.framecount % 4:
             self._move_piece_down()
+
         self._paint_screen()
-        self.framecount += 1
+
         return self.game_over, self._get_board_state()
 
 
 if __name__ == '__main__':
 
-    game = Tetris(block_queue=[1] * 20)
+    game = Tetris([4])
     game.mainloop()
