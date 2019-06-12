@@ -4,7 +4,7 @@
 [General]
 population size = 100
 transfer function power = -4.9
-bias node = yes
+bias node = no
 
 [Speciation]
 # compatibility_distance = c1(Excess_genes / Num_genes) + c2(Disjoint_genes / Num_genes) + c3 * AvgWtDiffMatching
@@ -14,7 +14,7 @@ c2 = 1.0
 c3 = 0.4
 gene counting threshold = 20
 compatibility threshold = 3.0
-extinction generation = 15
+extinction generation = 40
 minimum new species size = 5
 
 # Take this percentage of the best performers as the basis for the next generation
