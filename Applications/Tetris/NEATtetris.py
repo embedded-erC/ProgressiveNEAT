@@ -8,6 +8,42 @@ import gc
 
 from multiprocessing import Process, Pipe
 
+# TODO: Size testing code from SO:
+
+import sys
+from numbers import Number
+from collections import Set, Mapping, deque
+
+zero_depth_bases = (str, bytes, Number, range, bytearray)
+iteritems = 'items'
+
+
+def getsize(obj_0):
+    """Recursively iterate to sum size of object & members."""
+    _seen_ids = set()
+
+    def inner(obj):
+        obj_id = id(obj)
+        if obj_id in _seen_ids:
+            return 0
+        _seen_ids.add(obj_id)
+        size = sys.getsizeof(obj)
+        if isinstance(obj, zero_depth_bases):
+            pass # bypass remaining control flow and return
+        elif isinstance(obj, (tuple, list, Set, deque)):
+            size += sum(inner(i) for i in obj)
+        elif isinstance(obj, Mapping) or hasattr(obj, iteritems):
+            size += sum(inner(k) + inner(v) for k, v in getattr(obj, iteritems)())
+        # Check for custom object instances - may subclass above too
+        if hasattr(obj, '__dict__'):
+            size += inner(vars(obj))
+        if hasattr(obj, '__slots__'): # can have __slots__ with __dict__
+            size += sum(inner(getattr(obj, s)) for s in obj.__slots__ if hasattr(obj, s))
+        return size
+    return inner(obj_0)
+
+# TODO: END
+
 
 class ParallelTetrisPlayer(object):
     def __init__(self, _child_conn):
@@ -94,10 +130,19 @@ if __name__ == '__main__':
 
         av_fit = sum([individual.fitness for individual in population])/len(population)
 
-        print("Gen: {0}, average fitness: {1}. Generation Time: {2}".format(generation, av_fit, time.time() - start))
+        # print("Gen: {0}, average fitness: {1}. Generation Time: {2}".format(generation, av_fit, time.time() - start))
 
         session.collect_individuals(population)
         session.advance_generation()
+
+        # TODO: SIZE TESTING
+        print("Total Size: {0}, ID: {1}, num con genes: {2}, num node genes: {3}, size of genome: {4} ".format(
+            getsize(population[0]),
+                    population[0].id,
+                    len(population[0].genome.connection_genes),
+                    len(population[0].genome.node_genes),
+                    getsize(population[0].genome)))
+        # TODO: END
 
     parent_conn.send(("stop", []))
     parent_conn2.send(("stop", []))
