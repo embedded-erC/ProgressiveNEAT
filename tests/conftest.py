@@ -9,10 +9,11 @@ from Source.constants import get_config
 
 @pytest.fixture()
 def genome_basic():
-    c1 = genome.ConnectionGene(1, 2, 0.1, innov_num=3, config=get_config())
+    config = get_config()
+    c1 = genome.ConnectionGene(1, 2, 0.1, innov_num=3)
 
-    n1 = genome.NodeGene(node_type='input', innov_num=1, config=get_config())
-    n2 = genome.NodeGene(node_type='output', innov_num=2, config=get_config())
+    n1 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=1)
+    n2 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=2)
 
     connections = {
         c1.innov_num: c1,
@@ -23,7 +24,7 @@ def genome_basic():
         n2.innov_num: n2,
     }
 
-    g1 = genome.Genome(config=get_config())
+    g1 = genome.Genome(config=config)
 
     g1.node_genes = nodes
     g1.connection_genes = connections
@@ -33,24 +34,25 @@ def genome_basic():
 
 @pytest.fixture
 def genome_simple_shuffle():
-    c1 = genome.ConnectionGene(1, 3, 0.5, innov_num=5, config=get_config())
-    c2 = genome.ConnectionGene(2, 3, 0.5, innov_num=6, config=get_config())
-    c3 = genome.ConnectionGene(1, 4, 0.1, innov_num=7, config=get_config())
-    c4 = genome.ConnectionGene(4, 3, 0.8, innov_num=8, config=get_config())
-    c5 = genome.ConnectionGene(9, 3, 0.25, innov_num=10, config=get_config())
-    c6 = genome.ConnectionGene(4, 9, 0.333, innov_num=11, config=get_config())
-    c7 = genome.ConnectionGene(2, 12, 0.22, innov_num=13, config=get_config())
-    c8 = genome.ConnectionGene(12, 4, 0.22, innov_num=14, config=get_config())
-    c9 = genome.ConnectionGene(1, 15, 0.1, innov_num=16, config=get_config())
-    c10 = genome.ConnectionGene(15, 3, 0.1, innov_num=17, config=get_config())
+    config = get_config()
+    c1 = genome.ConnectionGene(1, 3, 0.5, innov_num=5)
+    c2 = genome.ConnectionGene(2, 3, 0.5, innov_num=6)
+    c3 = genome.ConnectionGene(1, 4, 0.1, innov_num=7)
+    c4 = genome.ConnectionGene(4, 3, 0.8, innov_num=8)
+    c5 = genome.ConnectionGene(9, 3, 0.25, innov_num=10)
+    c6 = genome.ConnectionGene(4, 9, 0.333, innov_num=11)
+    c7 = genome.ConnectionGene(2, 12, 0.22, innov_num=13)
+    c8 = genome.ConnectionGene(12, 4, 0.22, innov_num=14)
+    c9 = genome.ConnectionGene(1, 15, 0.1, innov_num=16)
+    c10 = genome.ConnectionGene(15, 3, 0.1, innov_num=17)
 
-    n1 = genome.NodeGene(node_type='input', innov_num=1, config=get_config())
-    n2 = genome.NodeGene(node_type='input', innov_num=2, config=get_config())
-    n3 = genome.NodeGene(node_type='output', innov_num=3, config=get_config())
-    n4 = genome.NodeGene(innov_num=4, config=get_config())
-    n5 = genome.NodeGene(innov_num=9, config=get_config())
-    n6 = genome.NodeGene(innov_num=12, config=get_config())
-    n7 = genome.NodeGene(innov_num=15, config=get_config())
+    n1 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=1)
+    n2 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=2)
+    n3 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=3)
+    n4 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=4)
+    n5 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=9)
+    n6 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=12)
+    n7 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=15)
 
     connections = {
         c1.innov_num: c1,
@@ -75,7 +77,7 @@ def genome_simple_shuffle():
         n7.innov_num: n7
     }
 
-    g1 = genome.Genome(config=get_config())
+    g1 = genome.Genome(config=config)
 
     g1.node_genes = nodes
     g1.connection_genes = connections
@@ -85,15 +87,16 @@ def genome_simple_shuffle():
 
 @pytest.fixture()
 def genome_four_nodes():
-    c1 = genome.ConnectionGene(1, 3, 0.1, innov_num=5, config=get_config())
-    c2 = genome.ConnectionGene(2, 3, 0.25, innov_num=6, config=get_config())
-    c3 = genome.ConnectionGene(1, 4, 0.1, innov_num=7, config=get_config())
-    c4 = genome.ConnectionGene(4, 3, -0.6, innov_num=8, config=get_config())
+    config = get_config()
+    c1 = genome.ConnectionGene(1, 3, 0.1, innov_num=5)
+    c2 = genome.ConnectionGene(2, 3, 0.25, innov_num=6)
+    c3 = genome.ConnectionGene(1, 4, 0.1, innov_num=7)
+    c4 = genome.ConnectionGene(4, 3, -0.6, innov_num=8)
 
-    n1 = genome.NodeGene(node_type='input', innov_num=1, config=get_config())
-    n2 = genome.NodeGene(node_type='input', innov_num=2, config=get_config())
-    n3 = genome.NodeGene(node_type='output', innov_num=3, config=get_config())
-    n4 = genome.NodeGene(innov_num=4, config=get_config())
+    n1 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=1)
+    n2 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=2)
+    n3 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=3)
+    n4 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=4)
 
     connections = {
         c1.innov_num: c1,
@@ -109,7 +112,7 @@ def genome_four_nodes():
         n4.innov_num: n4,
     }
 
-    g1 = genome.Genome(config=get_config())
+    g1 = genome.Genome(config=config)
 
     g1.node_genes = nodes
     g1.connection_genes = connections
@@ -119,16 +122,17 @@ def genome_four_nodes():
 
 @pytest.fixture()
 def genome_four_nodes_recursive():
-    c1 = genome.ConnectionGene(1, 3, 0.1, innov_num=5, config=get_config())
-    c2 = genome.ConnectionGene(2, 3, 0.25, innov_num=6, config=get_config())
-    c3 = genome.ConnectionGene(1, 4, 0.1, innov_num=7, config=get_config())
-    c4 = genome.ConnectionGene(4, 3, -0.6, innov_num=8, config=get_config())
-    c5 = genome.ConnectionGene(4, 4, 0.25, innov_num=9, config=get_config())  # Recursive connection
+    config = get_config()
+    c1 = genome.ConnectionGene(1, 3, 0.1, innov_num=5)
+    c2 = genome.ConnectionGene(2, 3, 0.25, innov_num=6)
+    c3 = genome.ConnectionGene(1, 4, 0.1, innov_num=7)
+    c4 = genome.ConnectionGene(4, 3, -0.6, innov_num=8)
+    c5 = genome.ConnectionGene(4, 4, 0.25, innov_num=9)  # Recursive connection
 
-    n1 = genome.NodeGene(node_type='input', innov_num=1, config=get_config())
-    n2 = genome.NodeGene(node_type='input', innov_num=2, config=get_config())
-    n3 = genome.NodeGene(node_type='output', innov_num=3, config=get_config())
-    n4 = genome.NodeGene(innov_num=4, config=get_config())
+    n1 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=1)
+    n2 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=2)
+    n3 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=3)
+    n4 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=4)
 
     connections = {
         c1.innov_num: c1,
@@ -145,7 +149,7 @@ def genome_four_nodes_recursive():
         n4.innov_num: n4,
     }
 
-    g1 = genome.Genome(config=get_config())
+    g1 = genome.Genome(config=config)
 
     g1.node_genes = nodes
     g1.connection_genes = connections
@@ -155,16 +159,17 @@ def genome_four_nodes_recursive():
 
 @pytest.fixture()
 def genome_isolated_recursive():
-    c1 = genome.ConnectionGene(1, 3, 0.1, innov_num=5, config=get_config())
-    c2 = genome.ConnectionGene(2, 3, 0.25, innov_num=6, config=get_config())
-    c3 = genome.ConnectionGene(1, 4, 0.1, innov_num=7, config=get_config())
-    c4 = genome.ConnectionGene(4, 3, -0.6, innov_num=8, config=get_config())
-    c5 = genome.ConnectionGene(4, 4, 0.25, innov_num=9, config=get_config())  # Recursive connection
+    config = get_config()
+    c1 = genome.ConnectionGene(1, 3, 0.1, innov_num=5)
+    c2 = genome.ConnectionGene(2, 3, 0.25, innov_num=6)
+    c3 = genome.ConnectionGene(1, 4, 0.1, innov_num=7)
+    c4 = genome.ConnectionGene(4, 3, -0.6, innov_num=8)
+    c5 = genome.ConnectionGene(4, 4, 0.25, innov_num=9)  # Recursive connection
 
-    n1 = genome.NodeGene(node_type='input', innov_num=1, config=get_config())
-    n2 = genome.NodeGene(node_type='input', innov_num=2, config=get_config())
-    n3 = genome.NodeGene(node_type='output', innov_num=3, config=get_config())
-    n4 = genome.NodeGene(innov_num=4, config=get_config())
+    n1 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=1)
+    n2 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=2)
+    n3 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=3)
+    n4 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=4)
 
     c3.enabled = False  # Isolate node 4
 
@@ -183,7 +188,7 @@ def genome_isolated_recursive():
         n4.innov_num: n4,
     }
 
-    g1 = genome.Genome(config=get_config())
+    g1 = genome.Genome(config=config)
 
     g1.node_genes = nodes
     g1.connection_genes = connections
@@ -193,15 +198,16 @@ def genome_isolated_recursive():
 
 @pytest.fixture()
 def genome_isolated_output_node():
-    c1 = genome.ConnectionGene(1, 3, 0.1, innov_num=5, config=get_config())
-    c2 = genome.ConnectionGene(2, 3, 0.25, innov_num=6, config=get_config())
-    c3 = genome.ConnectionGene(1, 4, 0.1, innov_num=7, config=get_config())
-    c4 = genome.ConnectionGene(2, 4, -0.6, innov_num=8, config=get_config())
+    config = get_config()
+    c1 = genome.ConnectionGene(1, 3, 0.1, innov_num=5)
+    c2 = genome.ConnectionGene(2, 3, 0.25, innov_num=6)
+    c3 = genome.ConnectionGene(1, 4, 0.1, innov_num=7)
+    c4 = genome.ConnectionGene(2, 4, -0.6, innov_num=8)
 
-    n1 = genome.NodeGene(node_type='input', innov_num=1, config=get_config())
-    n2 = genome.NodeGene(node_type='input', innov_num=2, config=get_config())
-    n3 = genome.NodeGene(node_type='output', innov_num=3, config=get_config())
-    n4 = genome.NodeGene(node_type='output', innov_num=4, config=get_config())
+    n1 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=1)
+    n2 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=2)
+    n3 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=3)
+    n4 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=4)
 
     # Isolate output node 4
     c3.enabled = False
@@ -221,7 +227,7 @@ def genome_isolated_output_node():
         n4.innov_num: n4,
     }
 
-    g1 = genome.Genome(config=get_config())
+    g1 = genome.Genome(config=config)
 
     g1.node_genes = nodes
     g1.connection_genes = connections
@@ -231,18 +237,19 @@ def genome_isolated_output_node():
 
 @pytest.fixture()
 def genome_five_nodes():
-    c1 = genome.ConnectionGene(1, 3, 0.6, innov_num=5, config=get_config())
-    c2 = genome.ConnectionGene(2, 3, 0.75, innov_num=6, config=get_config())
-    c3 = genome.ConnectionGene(1, 4, 0.6, innov_num=7, config=get_config())
-    c4 = genome.ConnectionGene(4, 3, -0.1, innov_num=8, config=get_config())
-    c5 = genome.ConnectionGene(1, 9, 0.1, innov_num=10, config=get_config())
-    c6 = genome.ConnectionGene(9, 3, 0.1, innov_num=11, config=get_config())
+    config = get_config()
+    c1 = genome.ConnectionGene(1, 3, 0.6, innov_num=5)
+    c2 = genome.ConnectionGene(2, 3, 0.75, innov_num=6)
+    c3 = genome.ConnectionGene(1, 4, 0.6, innov_num=7)
+    c4 = genome.ConnectionGene(4, 3, -0.1, innov_num=8)
+    c5 = genome.ConnectionGene(1, 9, 0.1, innov_num=10)
+    c6 = genome.ConnectionGene(9, 3, 0.1, innov_num=11)
 
-    n1 = genome.NodeGene(node_type='input', innov_num=1, config=get_config())
-    n2 = genome.NodeGene(node_type='input', innov_num=2, config=get_config())
-    n3 = genome.NodeGene(node_type='output', innov_num=3, config=get_config())
-    n4 = genome.NodeGene(innov_num=4, config=get_config())
-    n5 = genome.NodeGene(innov_num=9, config=get_config())
+    n1 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=1)
+    n2 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=2)
+    n3 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=3)
+    n4 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=4)
+    n5 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=9)
 
     connections = {
         c1.innov_num: c1,
@@ -261,7 +268,7 @@ def genome_five_nodes():
         n5.innov_num: n5
     }
 
-    g1 = genome.Genome(config=get_config())
+    g1 = genome.Genome(config=config)
 
     g1.node_genes = nodes
     g1.connection_genes = connections
@@ -271,21 +278,22 @@ def genome_five_nodes():
 
 @pytest.fixture()
 def genome_six_nodes():
-    c1 = genome.ConnectionGene(1, 3, 0.6, innov_num=5, config=get_config())
-    c2 = genome.ConnectionGene(2, 3, 0.75, innov_num=6, config=get_config())
-    c3 = genome.ConnectionGene(1, 4, 0.6, innov_num=7, config=get_config())
-    c4 = genome.ConnectionGene(4, 3, -0.1, innov_num=8, config=get_config())
-    c5 = genome.ConnectionGene(1, 9, 0.1, innov_num=10, config=get_config())
-    c6 = genome.ConnectionGene(9, 3, 0.1, innov_num=11, config=get_config())
-    c7 = genome.ConnectionGene(1, 12, 0.3, innov_num=13, config=get_config())
-    c8 = genome.ConnectionGene(12, 4, 0.1, innov_num=14, config=get_config())
+    config = get_config()
+    c1 = genome.ConnectionGene(1, 3, 0.6, innov_num=5)
+    c2 = genome.ConnectionGene(2, 3, 0.75, innov_num=6)
+    c3 = genome.ConnectionGene(1, 4, 0.6, innov_num=7)
+    c4 = genome.ConnectionGene(4, 3, -0.1, innov_num=8)
+    c5 = genome.ConnectionGene(1, 9, 0.1, innov_num=10)
+    c6 = genome.ConnectionGene(9, 3, 0.1, innov_num=11)
+    c7 = genome.ConnectionGene(1, 12, 0.3, innov_num=13)
+    c8 = genome.ConnectionGene(12, 4, 0.1, innov_num=14)
 
-    n1 = genome.NodeGene(node_type='input', innov_num=1, config=get_config())
-    n2 = genome.NodeGene(node_type='input', innov_num=2, config=get_config())
-    n3 = genome.NodeGene(node_type='output', innov_num=3, config=get_config())
-    n4 = genome.NodeGene(innov_num=4, config=get_config())
-    n5 = genome.NodeGene(innov_num=9, config=get_config())
-    n6 = genome.NodeGene(innov_num=12, config=get_config())
+    n1 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=1)
+    n2 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=2)
+    n3 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=3)
+    n4 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=4)
+    n5 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=9)
+    n6 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=12)
 
     connections = {
         c1.innov_num: c1,
@@ -307,7 +315,7 @@ def genome_six_nodes():
         n6.innov_num: n6
     }
 
-    g1 = genome.Genome(config=get_config())
+    g1 = genome.Genome(config=config)
 
     g1.node_genes = nodes
     g1.connection_genes = connections
@@ -317,18 +325,19 @@ def genome_six_nodes():
 
 @pytest.fixture()
 def genome_two_outputs():
-    c1 = genome.ConnectionGene(1, 3, 0.6, innov_num=5, config=get_config())
-    c2 = genome.ConnectionGene(2, 3, 0.75, innov_num=6, config=get_config())
-    c3 = genome.ConnectionGene(1, 4, 0.6, innov_num=7, config=get_config())
-    c4 = genome.ConnectionGene(2, 4, 0.1, innov_num=8, config=get_config())
-    c5 = genome.ConnectionGene(1, 9, 0.1, innov_num=10, config=get_config())
-    c6 = genome.ConnectionGene(9, 3, 0.3, innov_num=11, config=get_config())
+    config = get_config()
+    c1 = genome.ConnectionGene(1, 3, 0.6, innov_num=5)
+    c2 = genome.ConnectionGene(2, 3, 0.75, innov_num=6)
+    c3 = genome.ConnectionGene(1, 4, 0.6, innov_num=7)
+    c4 = genome.ConnectionGene(2, 4, 0.1, innov_num=8)
+    c5 = genome.ConnectionGene(1, 9, 0.1, innov_num=10)
+    c6 = genome.ConnectionGene(9, 3, 0.3, innov_num=11)
 
-    n1 = genome.NodeGene(node_type='input', innov_num=1, config=get_config())
-    n2 = genome.NodeGene(node_type='input', innov_num=2, config=get_config())
-    n3 = genome.NodeGene(node_type='output', innov_num=3, config=get_config())
-    n4 = genome.NodeGene(node_type='output', innov_num=4, config=get_config())
-    n5 = genome.NodeGene(innov_num=9, config=get_config())
+    n1 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=1)
+    n2 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=2)
+    n3 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=3)
+    n4 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=4)
+    n5 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=9)
 
     connections = {
         c1.innov_num: c1,
@@ -347,7 +356,7 @@ def genome_two_outputs():
         n5.innov_num: n5
     }
 
-    g1 = genome.Genome(config=get_config())
+    g1 = genome.Genome(config=config)
 
     g1.node_genes = nodes
     g1.connection_genes = connections
@@ -357,19 +366,20 @@ def genome_two_outputs():
 
 @pytest.fixture()
 def genome_recursive_two_outputs():
-    c1 = genome.ConnectionGene(1, 3, 1.0, innov_num=5, config=get_config())
-    c2 = genome.ConnectionGene(2, 3, 1.0, innov_num=6, config=get_config())
-    c3 = genome.ConnectionGene(1, 4, -1.0, innov_num=7, config=get_config())
-    c4 = genome.ConnectionGene(2, 4, -1.0, innov_num=8, config=get_config())
-    c5 = genome.ConnectionGene(1, 9, 0.0, innov_num=10, config=get_config())
-    c6 = genome.ConnectionGene(9, 4, 0.5, innov_num=11, config=get_config())
-    c7 = genome.ConnectionGene(9, 9, 1.0, innov_num=12, config=get_config())
+    config = get_config()
+    c1 = genome.ConnectionGene(1, 3, 1.0, innov_num=5)
+    c2 = genome.ConnectionGene(2, 3, 1.0, innov_num=6)
+    c3 = genome.ConnectionGene(1, 4, -1.0, innov_num=7)
+    c4 = genome.ConnectionGene(2, 4, -1.0, innov_num=8)
+    c5 = genome.ConnectionGene(1, 9, 0.0, innov_num=10)
+    c6 = genome.ConnectionGene(9, 4, 0.5, innov_num=11)
+    c7 = genome.ConnectionGene(9, 9, 1.0, innov_num=12)
 
-    n1 = genome.NodeGene(node_type='input', innov_num=1, config=get_config())
-    n2 = genome.NodeGene(node_type='input', innov_num=2, config=get_config())
-    n3 = genome.NodeGene(node_type='output', innov_num=3, config=get_config())
-    n4 = genome.NodeGene(node_type='output', innov_num=4, config=get_config())
-    n5 = genome.NodeGene(innov_num=9, config=get_config())
+    n1 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=1)
+    n2 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='input', innov_num=2)
+    n3 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=3)
+    n4 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], node_type='output', innov_num=4)
+    n5 = genome.NodeGene(sigmoid_power=config['kSigmoid_power'], innov_num=9)
 
     connections = {
         c1.innov_num: c1,
@@ -389,7 +399,7 @@ def genome_recursive_two_outputs():
         n5.innov_num: n5
     }
 
-    g1 = genome.Genome(config=get_config())
+    g1 = genome.Genome(config=config)
 
     g1.node_genes = nodes
     g1.connection_genes = connections

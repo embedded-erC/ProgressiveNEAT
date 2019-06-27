@@ -79,10 +79,10 @@ class Functions(NEATConfigBase):
         innov_num = 1
 
         for input_node in range(_inputs):
-            first_genome.node_genes[innov_num] = genome.NodeGene(node_type='input', innov_num=innov_num, config=self.config)
+            first_genome.node_genes[innov_num] = genome.NodeGene(sigmoid_power=self.kSigmoid_power, node_type='input', innov_num=innov_num)
             innov_num += 1
         for output_node in range(_outputs):
-            first_genome.node_genes[innov_num] = genome.NodeGene(node_type='output', innov_num=innov_num, config=self.config)
+            first_genome.node_genes[innov_num] = genome.NodeGene(sigmoid_power=self.kSigmoid_power, node_type='output', innov_num=innov_num)
             innov_num += 1
 
         for in_node in first_genome.node_genes.values():
@@ -92,8 +92,7 @@ class Functions(NEATConfigBase):
                         first_genome.connection_genes[innov_num] = genome.ConnectionGene(in_node.innov_num,
                                                                                          out_node.innov_num,
                                                                                          random.gauss(0, 1),
-                                                                                         innov_num=innov_num,
-                                                                                         config=self.config)
+                                                                                         innov_num=innov_num)
                         innov_num += 1
         return Individual(first_genome, config=self.config)
 

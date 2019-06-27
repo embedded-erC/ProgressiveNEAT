@@ -71,14 +71,12 @@ class Genome(NEATConfigBase):
         new_outbound_conn_innov = new_node_innov + 2
 
         # We've got the innovation numbers. Create the new genes:
-        self.node_genes[new_node_innov] = NodeGene(innov_num=new_node_innov, config=self.config)
+        self.node_genes[new_node_innov] = NodeGene(sigmoid_power=self.kSigmoid_power, innov_num=new_node_innov)
         self.connection_genes[new_inbound_conn_innov] = ConnectionGene(conn_to_break.in_node, new_node_innov, 1.0,
-                                                                       innov_num=new_inbound_conn_innov,
-                                                                       config=self.config)
+                                                                       innov_num=new_inbound_conn_innov)
         self.connection_genes[new_outbound_conn_innov] = ConnectionGene(new_node_innov, conn_to_break.out_node,
                                                                         conn_to_break.conn_weight,
-                                                                        innov_num=new_outbound_conn_innov,
-                                                                        config=self.config)
+                                                                        innov_num=new_outbound_conn_innov)
         return current_unused_innov
 
     def _find_eligible_connections(self):
@@ -115,8 +113,7 @@ class Genome(NEATConfigBase):
                 current_unused_innov += 1
                 innovs_this_generation[new_connection] = connection_innov
             self.connection_genes[connection_innov] = ConnectionGene(new_connection[0], new_connection[1],
-                                                                     random.gauss(0, 1), innov_num=connection_innov,
-                                                                     config=self.config)
+                                                                     random.gauss(0, 1), innov_num=connection_innov)
         return current_unused_innov
 
     def assemble_topology(self):
@@ -215,7 +212,7 @@ class Genome(NEATConfigBase):
         return outputs
 
 
-class Gene(NEATConfigBase):
+class Gene(object):
     """
         Class Docstring
 
@@ -270,7 +267,7 @@ class NodeGene(Gene):
         Data Reporting/Visualization Responsibilities:
             1. Track node evaluations (transfer function firings)
     """
-    def __init__(self, node_type='hidden', **kwargs):
+    def __init__(self,sigmoid_power=-4.9, node_type='hidden', **kwargs):
         super().__init__(**kwargs)
         self.node_type = node_type
         self.input_candidates = []
@@ -282,6 +279,7 @@ class NodeGene(Gene):
         self.inbound_activations = []
         self.layer = 1 if self.node_type == 'input' else -1
         self.is_isolated = False
+        self.kSigmoid_power = sigmoid_power
 
     def reset(self):
         self.input_candidates = []
@@ -337,3 +335,5 @@ class NodeGene(Gene):
         self.inbound_activations = []
 
         return activation if self.node_type == 'output' else zip(self.outbound_connections, downstream_pulses)
+
+
