@@ -92,11 +92,6 @@ class Visualization(object):
 
     def _graph_champion(self, _winner):
 
-        """
-        figure out how to do the recursive connections.
-        :return:
-        """
-
         genome = _winner.genome
 
         layers = dict()
@@ -131,9 +126,9 @@ class Visualization(object):
             x_vals, y_vals = [x0, x1], [y0, y1]
             if conn.in_node == conn.out_node:  # Recursive connection
                 shape = 'spline'
-                x_vals.insert(1, x0 + 0.006 * len(layers))
+                x_vals.insert(1, x0 + 0.006 * (len(layers) - 1))
                 y_vals.insert(1, y0 + 0.008)
-                x_vals.insert(2, x0 - 0.006 * len(layers))
+                x_vals.insert(2, x0 - 0.006 * (len(layers) - 1))
                 y_vals.insert(2, y0 + 0.008)
             dash = 'solid' if conn.enabled else 'dash'
             edge_traces.append(go.Scatter(
