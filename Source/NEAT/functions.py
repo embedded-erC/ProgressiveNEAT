@@ -94,7 +94,7 @@ class Functions(NEATConfigBase):
                                                                                          random.gauss(0, 1),
                                                                                          innov_num=innov_num)
                         innov_num += 1
-        return Individual(first_genome, config=self.config)
+        return Individual(first_genome, self.kBias_node)
 
     def sort_into_species(self, all_species, _individuals, _current_generation):
         """

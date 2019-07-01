@@ -23,12 +23,13 @@ def test_calc_avg_wt_difference(functions_object, genome_four_nodes, genome_five
 
 
 def test_sort_into_species(functions_object, genome_four_nodes, genome_six_nodes):
-    i_four_1 = individual.Individual(genome_four_nodes, config=get_config())
-    i_four_2 = individual.Individual(genome_four_nodes, config=get_config())
-    i_four_3 = individual.Individual(genome_four_nodes, config=get_config())
+    config = get_config()
+    i_four_1 = individual.Individual(genome_four_nodes, config['kBias_node'])
+    i_four_2 = individual.Individual(genome_four_nodes, config['kBias_node'])
+    i_four_3 = individual.Individual(genome_four_nodes, config['kBias_node'])
 
-    i_six_1 = individual.Individual(genome_six_nodes, config=get_config())
-    i_six_2 = individual.Individual(genome_six_nodes, config=get_config())
+    i_six_1 = individual.Individual(genome_six_nodes, config['kBias_node'])
+    i_six_2 = individual.Individual(genome_six_nodes, config['kBias_node'])
 
     i_four_2.assigned_specie = "Not Assigned"
     i_six_1.assigned_specie = "Not Assigned"

@@ -71,6 +71,8 @@ class Visualization(object):
             2. "species fitness" - the sum total of each individual's performance measure
             3. "peak individual" - full copy of the best performing individual that generation
             4. "extinction generation" - None if an active species, else the generation that it died out
+            5. "average connections" - Average number of connection genes (enabled and disabled)
+            6. "average nodes" - Average number of node genes for that species.
         :return:
         """
         self.species_generational_stats[self.current_generation].update({_species_id: _stats_dict})
@@ -88,8 +90,81 @@ class Visualization(object):
 
         plotly.offline.plot(data, filename='Number of Species Per Generation.html')
 
-    def _graph_champion(self):
-        pass
+    def _graph_champion(self, _winner):
+
+        """
+        cycle through the node genes and assign them a y-value.
+        cycle through the conn genes and use their inbound/outbound fields to draw the lines.
+            Use the conn wt as the hover text
+
+        figure out how to do the recursive connections.
+        :return:
+        """
+
+        genome = _winner.genome
+
+        layers = dict()
+        for node in genome.node_genes.values():
+            try:
+                layers[node.layer].append(node)
+            except KeyError:
+                layers[node.layer] = [node]
+
+        for layer in layers:
+            n = 1
+            for node in layers[layer]:
+                node.y_pos = n / (len(layers[layer]) + 1)
+                n += 1
+
+        # Create Edges
+        edge_trace = go.Scatter(
+            x=[],
+            y=[],
+            line=dict(width=0.5, color='#888'),
+            text=[],
+            hoverinfo='text',
+            hoveron='fills',
+            mode='lines')
+
+        for conn in genome.connection_genes.values():
+            x0, y0 = genome.node_genes[conn.in_node].layer, genome.node_genes[conn.in_node].y_pos
+            x1, y1 = genome.node_genes[conn.out_node].layer, genome.node_genes[conn.out_node].y_pos
+            edge_trace['x'] += tuple([x0, x1, None])
+            edge_trace['y'] += tuple([y0, y1, None])
+            edge_trace['text'] += tuple([conn.conn_weight])
+
+        node_trace = go.Scatter(
+            x=[],
+            y=[],
+            text=[],
+            mode='markers',
+            hoverinfo='text',
+            marker=dict(
+                size=10,
+                line=dict(width=2)))
+
+        for node in genome.node_genes.values():
+            x, y = node.layer, node.y_pos
+            node_trace['x'] += tuple([x])
+            node_trace['y'] += tuple([y])
+            node_trace['text'] += tuple([node.innov_num])
+
+        # Create network graph
+        fig = go.Figure(data=[edge_trace, node_trace],
+                        layout=go.Layout(
+                            title='<br>Champion Topology',
+                            titlefont=dict(size=16),
+                            showlegend=False,
+                            hovermode='closest',
+                            margin=dict(b=20, l=5, r=5, t=40),
+                            annotations=[dict(
+                                showarrow=False,
+                                xref="paper", yref="paper",
+                                x=0.005, y=-0.002)],
+                            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)))
+
+        plotly.offline.plot(fig, filename='champion.html')
 
     def _graph_species_sizes(self):
 
@@ -141,9 +216,54 @@ class Visualization(object):
 
         plotly.offline.plot(data, filename='Peak Fitness.html')
 
-    def graph_stats(self):
+    def _graph_genome_stats(self, _stat):
+        traces = {}
+        generations = sorted(self.species_generational_stats.keys())
+
+        for generation in generations:
+            for specie in self.species_generational_stats[generation]:
+                try:
+                    if self.species_generational_stats[generation][specie]['extinction generation']:
+                        pass
+                    else:
+                        val = self.species_generational_stats[generation][specie][_stat]
+                        traces[specie]['y-value'].append(val)
+                        traces[specie]['x-value'].append(generation)
+                        traces[specie]['id'].append((specie, round(val, 2)))
+                except KeyError:
+                    val = self.species_generational_stats[generation][specie][_stat]
+                    traces[specie] = {'y-value': [val],
+                                      'x-value': [generation],
+                                      'id': [(specie, round(val, 2))]}
+        data = []
+        for i in traces:
+            data.append(
+                go.Bar(
+                    x=traces[i]['x-value'],
+                    y=traces[i]["y-value"],
+                    text=traces[i]['id'],
+                    hoverinfo='text',
+                    marker=dict(
+                        line=dict(width=0.5)
+                    )
+                )
+            )
+
+        layout = go.Layout(
+            title=_stat,
+            barmode='group',
+            bargap=0.12,
+            bargroupgap=0.3
+        )
+        fig = go.Figure(data=data, layout=layout)
+        plotly.offline.plot(fig, filename='{0}.html'.format(_stat), validate=False)
+
+    def graph_stats(self, winner=None):
 
         self._graph_num_speices()
-        self._graph_champion()
         self._graph_species_sizes()
         self._graph_peak_fitness()
+        self._graph_genome_stats("average connections")
+        self._graph_genome_stats("average nodes")
+        if winner:
+            self._graph_champion(winner)

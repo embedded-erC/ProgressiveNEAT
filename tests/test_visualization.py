@@ -20,3 +20,6 @@ def test_species_generational_stats(visualization_instance, species_six_members,
     assert visualization_instance.species_generational_stats[0][species_five_members.id]["size"] == 5
     assert visualization_instance.species_generational_stats[1][species_six_members.id]["size"] == 6
     assert visualization_instance.species_generational_stats[1][species_five_members.id]["size"] == 5
+
+    assert visualization_instance.species_generational_stats[0][species_six_members.id]["average connections"] == 1
+    assert visualization_instance.species_generational_stats[0][species_six_members.id]["average nodes"] == 2

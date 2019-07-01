@@ -1,10 +1,9 @@
 """
     Module-level docstring start
 """
-from Source.NEAT.NEATConfigBase import NEATConfigBase
 
 
-class Individual(NEATConfigBase):
+class Individual(object):
     """
         Class Docstring
 
@@ -16,14 +15,15 @@ class Individual(NEATConfigBase):
     """
     num_created = 0
 
-    def __init__(self, genome, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, genome, bias):
+        super().__init__()
         Individual.num_created += 1
         self.id = Individual.num_created
         self.genome = genome
         self.genome.assemble_topology()
         self.fitness = 0
         self.assigned_specie = None
+        self.kBias_node = bias
 
     def evaluate(self, inputs):
         """

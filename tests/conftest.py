@@ -409,8 +409,9 @@ def genome_recursive_two_outputs():
 
 @pytest.fixture()
 def species_one_member(genome_basic):
+    config = get_config()
 
-    i1 = individual.Individual(genome_basic, config=get_config())
+    i1 = individual.Individual(genome_basic, config['kBias_node'])
     i1.fitness = 1
 
     s1 = species.Species(0, i1, config=get_config())
@@ -420,12 +421,13 @@ def species_one_member(genome_basic):
 
 @pytest.fixture()
 def species_five_members(genome_basic):
+    config = get_config()
 
-    i1 = individual.Individual(genome_basic, config=get_config())
-    i2 = individual.Individual(genome_basic, config=get_config())
-    i3 = individual.Individual(genome_basic, config=get_config())
-    i4 = individual.Individual(genome_basic, config=get_config())
-    i5 = individual.Individual(genome_basic, config=get_config())
+    i1 = individual.Individual(genome_basic, config['kBias_node'])
+    i2 = individual.Individual(genome_basic, config['kBias_node'])
+    i3 = individual.Individual(genome_basic, config['kBias_node'])
+    i4 = individual.Individual(genome_basic, config['kBias_node'])
+    i5 = individual.Individual(genome_basic, config['kBias_node'])
 
     i1.fitness = 10
     i2.fitness = 15
@@ -440,13 +442,14 @@ def species_five_members(genome_basic):
 
 @pytest.fixture()
 def species_six_members(genome_basic):
+    config = get_config()
 
-    i1 = individual.Individual(genome_basic, config=get_config())
-    i2 = individual.Individual(genome_basic, config=get_config())
-    i3 = individual.Individual(genome_basic, config=get_config())
-    i4 = individual.Individual(genome_basic, config=get_config())
-    i5 = individual.Individual(genome_basic, config=get_config())
-    i6 = individual.Individual(genome_basic, config=get_config())
+    i1 = individual.Individual(genome_basic, config['kBias_node'])
+    i2 = individual.Individual(genome_basic, config['kBias_node'])
+    i3 = individual.Individual(genome_basic, config['kBias_node'])
+    i4 = individual.Individual(genome_basic, config['kBias_node'])
+    i5 = individual.Individual(genome_basic, config['kBias_node'])
+    i6 = individual.Individual(genome_basic, config['kBias_node'])
 
     i1.fitness = 10
     i2.fitness = 15

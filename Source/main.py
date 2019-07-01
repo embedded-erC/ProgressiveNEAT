@@ -20,7 +20,7 @@ class NEATSession(object):
         self.population = [self.functions.create_initial_individual(inputs, outputs) for individual in range(self.config['kPop_size'])]
         self.current_unused_innov = self.population[0].genome.get_greatest_innov() + 1
         self.session_stats = visualization.Visualization()
-        self.overall_peak_fitness = 0
+        self.current_champion = None
 
         # TESTING:
         self.all_innovs = dict()
@@ -67,7 +67,8 @@ class NEATSession(object):
         self.session_stats.set_generation(self.generation)
         for specie in self.species.values():
             self.session_stats.gather_species_generational_stats(specie.id, specie.report_stats())
-        self.session_stats.gather_overall_generational_stats({'overall peak fitness': self.overall_peak_fitness})
+        self.session_stats.gather_overall_generational_stats({'overall peak fitness': self.current_champion.fitness,
+                                                              'current champion': self.current_champion})
 
     def _mutate_species(self, _innovs_this_generation):
         for specie in self.species.values():
@@ -81,9 +82,12 @@ class NEATSession(object):
             self.species[enum_species_fitness[1][1]].rank = enum_species_fitness[0]
 
     def _set_overall_peak_fitness(self):
-        best_fitness_this_gen = max([specie.peak_fitness for specie in self.species.values()])
-        if best_fitness_this_gen > self.overall_peak_fitness:
-            self.overall_peak_fitness = best_fitness_this_gen
+        if not self.current_champion:
+            self.current_champion = self.species[1].members[-1]
+
+        for specie in self.species.values():
+            if specie.members[-1].fitness > self.current_champion.fitness:
+                self.current_champion = specie.members[-1]
 
     def _update_all_species(self):
         for specie in self.species.values():
@@ -133,8 +137,8 @@ class NEATSession(object):
         # TODO: Move all this to functions and have no methods that are not required for the external interface
         # TODO: Get tests in place for all of those functions.
 
-    def show_stats(self):
-        self.session_stats.graph_stats()
+    def show_stats(self, winner=None):
+        self.session_stats.graph_stats(winner)
 
 
 if __name__ == "__main__":

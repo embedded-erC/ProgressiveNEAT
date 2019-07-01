@@ -122,8 +122,9 @@ def test_report_stats(species_six_members):
 
 
 def test_add_member(species_six_members, genome_basic):
+    config = get_config()
 
-    new_member = Individual(genome_basic, config=get_config())
+    new_member = Individual(genome_basic, config['kBias_node'])
 
     assert new_member.assigned_specie is None
     assert len(species_six_members.members) == 6
@@ -142,8 +143,9 @@ def test_eliminate_lowest_performers(species_six_members):
 
 
 def test_mate(genome_four_nodes, genome_five_nodes):
-    i1 = Individual(genome_four_nodes, config=get_config())
-    i2 = Individual(genome_five_nodes, config=get_config())
+    config = get_config()
+    i1 = Individual(genome_four_nodes, config['kBias_node'])
+    i2 = Individual(genome_five_nodes, config['kBias_node'])
 
     i1.fitness = 10
     i2.fitness = 5
@@ -156,8 +158,9 @@ def test_mate(genome_four_nodes, genome_five_nodes):
 
 
 def test_mate_inverted_fitness(genome_four_nodes, genome_five_nodes):
-    i1 = Individual(genome_four_nodes, config=get_config())
-    i2 = Individual(genome_five_nodes, config=get_config())
+    config = get_config()
+    i1 = Individual(genome_four_nodes, config['kBias_node'])
+    i2 = Individual(genome_five_nodes, config['kBias_node'])
 
     i1.fitness = 5
     i2.fitness = 10

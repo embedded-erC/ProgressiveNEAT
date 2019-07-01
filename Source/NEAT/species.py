@@ -156,7 +156,7 @@ class Species(NEATConfigBase):
             else:
                 offspring_genome.connection_genes[conn_gene_id] = copy.deepcopy(
                     _mother.genome.connection_genes[conn_gene_id])
-        return Individual(offspring_genome, config=self.config)
+        return Individual(offspring_genome, self.kBias_node)
 
     def mutate(self, innovs_this_generation, current_unused_innov):
         self._eliminate_lowest_performers()
@@ -199,7 +199,8 @@ class Species(NEATConfigBase):
         stats['peak fitness'] = self.peak_fitness
         stats["peak individual"] = copy.deepcopy(self.members[-1])
         stats["extinction generation"] = self.extinction_generation
-
+        stats["average connections"] = sum([len(member.genome.connection_genes) for member in self.members]) / len(self.members)
+        stats["average nodes"] = sum([len(member.genome.node_genes) for member in self.members]) / len(self.members)
         return stats
 
     def update_species(self):

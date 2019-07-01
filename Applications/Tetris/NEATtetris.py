@@ -57,7 +57,7 @@ if __name__ == '__main__':
     p3.start()
     p4.start()
 
-    for generation in range(200):
+    for generation in range(5):
 
         standardized_block_queue = [1] * 10 + [0, 0] + [random.choice(range(5)) for i in range(100)]
 
@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
         av_fit = sum([individual.fitness for individual in population])/len(population)
 
-        # print("Gen: {0}, average fitness: {1}. Generation Time: {2}".format(generation, av_fit, time.time() - start))
+        print("Gen: {0}, average fitness: {1}. Generation Time: {2}".format(generation, av_fit, time.time() - start))
 
         session.collect_individuals(population)
         session.advance_generation()
@@ -92,4 +92,17 @@ if __name__ == '__main__':
 
     session.show_stats()
 
+"""
+Next-step changes:
+1. I wonder if I can tweak the mutation rate based on median score progression. 
+2. More detailed stats. Median, percentiles, etc.
+3. Save the visualization data out to disk every generation
+4. A viewer application that can work with the stored data and display only what is wanted. 
+5. Change the way species extinction works? Change it to median, or first st. dev. not progressing AND it's in the bottom half
+     of all species in rank? Something that avoids (relatively) good species getting killed off. 
+6. Num generations to run as a param
+7. Save the current best performer in the NEAT session for later viewing. Maybe store 1 per generation?
+8. Fix the network graphing issue with different layers having the same y_pos for nodes. 
+9. Find a way to visually represent the connection weights on the network graphs
+"""
 
