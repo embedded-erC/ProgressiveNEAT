@@ -110,28 +110,37 @@ class Visualization(object):
             except KeyError:
                 layers[node.layer] = [node]
 
+        offset = 0.15
         for layer in layers:
             n = 1
             for node in layers[layer]:
                 node.y_pos = n / (len(layers[layer]) + 1)
+                if (layer > 1 and layer % 2) and node.node_type != 'output':
+                    node.y_pos += offset
+                elif (layer > 1 and not layer % 2) and node.node_type != 'output':
+                    node.y_pos -= offset
                 n += 1
+            offset -= 0.015
 
         # Create Edges
-        edge_trace = go.Scatter(
-            x=[],
-            y=[],
-            line=dict(width=0.5, color='#888'),
-            text=[],
-            hoverinfo='text',
-            hoveron='fills',
-            mode='lines')
+        edge_traces = []
 
         for conn in genome.connection_genes.values():
+            red = str(max(0, min(255, 127 - (128 * conn.conn_weight))))
+            blue = str(max(0, min(255, 127 + (128 * conn.conn_weight))))
+            width_multipler = 0.1 * round(abs(conn.conn_weight), 0)
             x0, y0 = genome.node_genes[conn.in_node].layer, genome.node_genes[conn.in_node].y_pos
             x1, y1 = genome.node_genes[conn.out_node].layer, genome.node_genes[conn.out_node].y_pos
-            edge_trace['x'] += tuple([x0, x1, None])
-            edge_trace['y'] += tuple([y0, y1, None])
-            edge_trace['text'] += tuple([conn.conn_weight])
+            dash = 'solid' if conn.enabled else 'dash'
+            edge_traces.append(go.Scatter(
+                x=[x0, x1],
+                y=[y0, y1],
+                line=dict(
+                    width=0.3+width_multipler,
+                    dash=dash,
+                    color='rgb({0}, 0, {1})'.format(red, blue),
+                )
+            ))
 
         node_trace = go.Scatter(
             x=[],
@@ -150,7 +159,7 @@ class Visualization(object):
             node_trace['text'] += tuple([node.innov_num])
 
         # Create network graph
-        fig = go.Figure(data=[edge_trace, node_trace],
+        fig = go.Figure(data=edge_traces + [node_trace],
                         layout=go.Layout(
                             title='<br>Champion Topology',
                             titlefont=dict(size=16),

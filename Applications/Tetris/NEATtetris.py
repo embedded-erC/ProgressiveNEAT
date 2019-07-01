@@ -90,7 +90,7 @@ if __name__ == '__main__':
     parent_conn3.send(("stop", []))
     parent_conn4.send(("stop", []))
 
-    session.show_stats()
+    session.show_stats(session.current_champion)
 
 """
 Next-step changes:
