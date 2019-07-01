@@ -93,10 +93,6 @@ class Visualization(object):
     def _graph_champion(self, _winner):
 
         """
-        cycle through the node genes and assign them a y-value.
-        cycle through the conn genes and use their inbound/outbound fields to draw the lines.
-            Use the conn wt as the hover text
-
         figure out how to do the recursive connections.
         :return:
         """
@@ -129,16 +125,27 @@ class Visualization(object):
             red = str(max(0, min(255, 127 - (128 * conn.conn_weight))))
             blue = str(max(0, min(255, 127 + (128 * conn.conn_weight))))
             width_multipler = 0.1 * round(abs(conn.conn_weight), 0)
+            shape = 'linear'
             x0, y0 = genome.node_genes[conn.in_node].layer, genome.node_genes[conn.in_node].y_pos
             x1, y1 = genome.node_genes[conn.out_node].layer, genome.node_genes[conn.out_node].y_pos
+            x_vals, y_vals = [x0, x1], [y0, y1]
+            if conn.in_node == conn.out_node:  # Recursive connection
+                shape = 'spline'
+                x_vals.insert(1, x0 + 0.006 * len(layers))
+                y_vals.insert(1, y0 + 0.008)
+                x_vals.insert(2, x0 - 0.006 * len(layers))
+                y_vals.insert(2, y0 + 0.008)
             dash = 'solid' if conn.enabled else 'dash'
             edge_traces.append(go.Scatter(
-                x=[x0, x1],
-                y=[y0, y1],
+                x=x_vals,
+                y=y_vals,
+                mode='lines',
                 line=dict(
                     width=0.3+width_multipler,
                     dash=dash,
                     color='rgb({0}, 0, {1})'.format(red, blue),
+                    shape=shape,
+                    smoothing=1.3
                 )
             ))
 
