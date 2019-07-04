@@ -1,14 +1,23 @@
 from Source.main import NEATSession
 from Source.constants import get_config
+import random
 
 
 def evaluate_task(_individual):
-    neither = _individual.evaluate([0, 0])[0]
-    left = _individual.evaluate([1, 0])[0]
-    right = _individual.evaluate([0, 1])[0]
-    both = _individual.evaluate([1, 1])[0]
 
-    squared_performance = ((1 - neither) + left + right + (1 - both)) ** 2
+    inputs = {
+        'neither': [0, 0],
+        'left': [1, 0],
+        'right': [0, 1],
+        'both': [1, 1]
+    }
+
+    options = list(inputs.keys())
+    random.shuffle(options)
+    for choice in options:
+        inputs[choice] = individual.evaluate(inputs[choice])[0]
+
+    squared_performance = ((1 - inputs['neither']) + inputs['left'] + inputs['right'] + (1 - inputs['both'])) ** 2
     _individual.fitness = squared_performance
 
 

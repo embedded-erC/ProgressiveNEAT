@@ -61,6 +61,14 @@ class Visualization(object):
         self.species_generational_stats[_generation] = dict()
 
     def gather_overall_generational_stats(self, _stats_dict):
+        """
+        Indexed by generation. These stats include:
+            1. "overall peak fitness" - the champion individual's fitness score
+            2. "current champion" - the individual object with the highest score that generation.
+            3. "fitness scores" - unsorted list of every fitness score that generation.
+        :param _stats_dict:
+        :return:
+        """
         self.overall_generational_stats[self.current_generation] = _stats_dict
 
     def gather_species_generational_stats(self, _species_id, _stats_dict):
@@ -173,7 +181,9 @@ class Visualization(object):
                                 xref="paper", yref="paper",
                                 x=0.005, y=-0.002)],
                             xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)))
+                            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                            paper_bgcolor='rgb(243, 243, 243)',
+                            plot_bgcolor='rgb(243, 243, 243)'))
 
         plotly.offline.plot(fig, filename='champion.html')
 
@@ -215,17 +225,23 @@ class Visualization(object):
             )
         plotly.offline.plot(data, filename='Species Tracking.html', validate=False)
 
-    def _graph_peak_fitness(self):
-        x = sorted(self.overall_generational_stats.keys())
-        y = [self.overall_generational_stats[generation]['overall peak fitness'] for generation in x]
+    def _graph_fitness_statistics(self):
+        data = []
+        for generation in sorted(self.overall_generational_stats.keys()):
+            if (not (generation - 1) % 5) or generation == sorted(self.overall_generational_stats.keys())[-1]:
+                data.append(
+                    go.Violin(
+                        name='gen {0}'.format(generation),
+                        y=self.overall_generational_stats[generation]['fitness scores'],
+                        points='all',
+                        jitter=0.3,
+                        pointpos=-1.8,
+                        meanline=dict(visible=True),
+                        box=dict(visible=True)
+                    )
+                )
 
-        data = [go.Scatter(
-            x=x,
-            y=y,
-            mode='lines+markers'
-        )]
-
-        plotly.offline.plot(data, filename='Peak Fitness.html')
+        plotly.offline.plot(data, filename='Fitness Stats.html')
 
     def _graph_genome_stats(self, _stat):
         traces = {}
@@ -273,7 +289,7 @@ class Visualization(object):
 
         self._graph_num_speices()
         self._graph_species_sizes()
-        self._graph_peak_fitness()
+        self._graph_fitness_statistics()
         self._graph_genome_stats("average connections")
         self._graph_genome_stats("average nodes")
         if winner:

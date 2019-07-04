@@ -64,11 +64,14 @@ class NEATSession(object):
             lucky_specie.add_member(hybrid)
 
     def _gather_visualization_data(self):
+        fitness_scores = []
         self.session_stats.set_generation(self.generation)
         for specie in self.species.values():
             self.session_stats.gather_species_generational_stats(specie.id, specie.report_stats())
+            [fitness_scores.append(member.fitness) for member in specie.members]
         self.session_stats.gather_overall_generational_stats({'overall peak fitness': self.current_champion.fitness,
-                                                              'current champion': self.current_champion})
+                                                              'current champion': self.current_champion,
+                                                              'fitness scores': fitness_scores})
 
     def _mutate_species(self, _innovs_this_generation):
         for specie in self.species.values():

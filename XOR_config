@@ -18,7 +18,7 @@ extinction generation = 25
 minimum new species size = 5
 
 # Take this percentage of the best performers as the basis for the next generation
-percentage allowed to reproduce = 0.75
+percentage allowed to reproduce = 0.50
 
 [Mutation]
 # Chances in pct / 100. So 0.8 is an 80% chance of occurrence

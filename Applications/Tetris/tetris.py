@@ -190,7 +190,7 @@ class Tetris(object):
         if not self.framecount % 4:
             self._move_piece_down()
 
-        self._paint_screen()
+        # self._paint_screen()
 
         return self.game_over, self._get_board_state()
 
