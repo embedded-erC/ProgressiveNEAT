@@ -86,6 +86,18 @@ def get_config(_config_name=''):
         config_dict['kMutation_only_rate'] = float(config['Mating']['percent offspring from mutation only'])
         config_dict['kInterspecies_rate'] = float(config['Mating']['interspecies mating rate'])
 
+        ####### Other Params #######
+
+        # Visualization
+
+        # Persistence
+        config_dict['kLoad_saved_genomes'] = config['Persistence'].getboolean('start with saved genomes')
+        config_dict['kNum_genomes_persisted'] = int(config['Persistence']['number of genomes to save after generations expire'])
+        config_dict['kGenome_folder'] = config['Persistence']['genome folder']
+
+        # Other
+        config_dict['Project Root'] = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+
     except (ValueError, KeyError) as err:
         print("Invalid Parameters! Check your NEAT config settings. Aborting.")
         quit(err)

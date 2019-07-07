@@ -35,3 +35,8 @@ percent offspring from mutation only = 0.25
 interspecies mating rate = 0.01
 
 [Visualization]
+
+[Persistence]
+start with saved genomes = no
+number of genomes to save after generations expire = 0
+genome folder = tests

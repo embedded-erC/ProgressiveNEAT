@@ -4,6 +4,7 @@
 
 import random
 import Source.NEAT.species as species
+import Source.Persistence.persistence as persistence
 import Source.Visualization.visualization as visualization
 from Source.constants import get_config
 from Source.NEAT.functions import Functions
@@ -15,9 +16,10 @@ class NEATSession(object):
 
         self.config = get_config() if not _config else _config
         self.functions = Functions(config=self.config)
+        self.persistence = persistence.Persistence(self.config)
 
         self.generation = 0
-        self.population = [self.functions.create_initial_individual(inputs, outputs) for individual in range(self.config['kPop_size'])]
+        self.population = self._get_initial_population(inputs, outputs)
         self.current_unused_innov = self.population[0].genome.get_greatest_innov() + 1
         self.session_stats = visualization.Visualization()
         self.current_champion = None
@@ -30,6 +32,12 @@ class NEATSession(object):
 
         for individual in self.population[1:]:
             self.species[first_species.id].add_member(individual)
+
+    def _get_initial_population(self, _inputs, _outputs):
+        if self.config['kLoad_saved_genomes']:
+            return self.persistence.load_genomes()
+        else:
+            return [self.functions.create_initial_individual(_inputs, _outputs) for individual in range(self.config['kPop_size'])]
 
     def _choose_species_representatives(self):
         for specie in self.species.values():

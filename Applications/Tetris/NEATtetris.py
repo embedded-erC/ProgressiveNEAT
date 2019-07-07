@@ -108,5 +108,10 @@ Next-step changes:
 8. Fix the second iteration of the infinite recursion bug. 
 9. If the long-term memory issue is too difficult to track down, what about saving off all the genomes 
     Or just saving off the best genome(s) from each run, then starting new sessions from all of those.
+10. Could I section the config into domains that different classes use? So we don't allocate as much memory for
+    parts of the config that various classes don't use?
+11. Could I also not keep such super-entwined configs with the genomes? What if I stripped and refreshed all genome's 
+    configs every generation?
+    
 """
 
