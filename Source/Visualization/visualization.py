@@ -228,7 +228,7 @@ class Visualization(object):
     def _graph_fitness_statistics(self):
         data = []
         for generation in sorted(self.overall_generational_stats.keys()):
-            if (not (generation - 1) % 5) or generation == sorted(self.overall_generational_stats.keys())[-1]:
+            if (not (generation - 1) % 10) or generation == sorted(self.overall_generational_stats.keys())[-1]:
                 data.append(
                     go.Violin(
                         name='gen {0}'.format(generation),

@@ -57,7 +57,7 @@ if __name__ == '__main__':
     p3.start()
     p4.start()
 
-    for generation in range(120):
+    for generation in range(300):
 
         standardized_block_queue = [1] * 10 + [0, 0] + [random.choice(range(5)) for i in range(100)]
 
@@ -98,6 +98,8 @@ Next-step changes:
 4. A viewer application that can work with the stored data and display only what is wanted. 
 5. Change the way species extinction works? Change it to median, or first st. dev. not progressing AND it's in the bottom half
      of all species in rank? Something that avoids (relatively) good species getting killed off. 
+     What about saving the best members of a species that is going extinct? I don't want to lose individuals that are
+     greater than a standard deviation above the mean.
 6. Num generations to run as a param
 7. What about having the rank cutoff of number of individuals that get to reproduce go down as number of species rises?
     So with a single species nearly all of the individuals will make offspring, with many species only a few will.
@@ -105,5 +107,6 @@ Next-step changes:
     TODO: Should fix the empty sequence problem during reproduction if the % allowed to reproduce gets too low. 
 8. Fix the second iteration of the infinite recursion bug. 
 9. If the long-term memory issue is too difficult to track down, what about saving off all the genomes 
+    Or just saving off the best genome(s) from each run, then starting new sessions from all of those.
 """
 
